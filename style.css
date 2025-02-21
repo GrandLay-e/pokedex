@@ -1,0 +1,131 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to left, #141e30, #243b55);
+    /* color: white; */
+    margin: 0;
+    padding: 20px;
+}
+.poketitle{
+    color: white;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+h1 {
+    color: #343a40;
+    text-align: center;
+}
+.pokename{
+    color: white;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.pokedex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.pokemon-card {
+    background-color: rgb(1, 34, 80);
+    border: 1px solid #ced4da;
+    border-radius: 3em;
+    box-shadow: 0px 4px 8px rgb( 0, 0, 0);
+    padding: 20px;
+    text-align: center;
+    width: 200px;
+}
+
+.pokemon-card img {
+    width: 150px;
+    height: 150px;
+}
+
+.type {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: white;
+    margin: 5px 0;
+}
+.type-eau {background-color: #3399FF;}
+
+.type-feu {background-color: #FF6633;}
+
+.type-plante {background-color: #66CC33;}
+
+.type-Électrik {background-color: #856609;}
+
+.type-glace {background-color: #66CCFF;}
+
+.type-combat {background-color: #CC3333;}
+
+.type-poison {background-color: #9933CC;}
+
+.type-sol {background-color: #CC9966;}
+
+.type-vol {background-color: #6699FF;}
+
+.type-psy {background-color: #FF3399;}
+
+.type-insecte {background-color: #99CC33;}
+
+.type-roche {background-color: #CC9933;}
+
+.type-spectre {background-color: #663399;}
+
+.type-dragon {background-color: #6633CC;}
+
+.type-ténèbres {background-color: #333333;}
+
+.type-acier {background-color: #999999;}
+
+.type-fée {background-color: #FF99CC;}
+
+.type-normal {background-color: #999999;}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    width: 200px;
+}
+
+input[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+#suppbutton{
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #ff0000;
+    color: white;
+    cursor: pointer;
+    text-decoration: solid ;
+}
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.messag_alert{
+    text-decoration: underline;
+    color : rgb(211, 13, 13);
+    font-size: 1.3em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+}
