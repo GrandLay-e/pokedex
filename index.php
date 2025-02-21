@@ -31,8 +31,9 @@
                 fclose($file);
             }
 
-            ///Fonction pour réordonner le contenu du fichier csv avant de l'afficher
-            function reoderPokemons($csv_file , $name = ''){
+            ///Fonction pour réordonner le contenu du fichier csv avant de l'afficher 
+            /// Elle sert aussi pour supprimer un pokemon
+            function reoderPokemons($csv_file , $nameToRemove = ''){
                 $file = fopen($csv_file, 'r');
 
                 $pokemons = []; #va centenir les données du fichier csv de base
@@ -42,11 +43,11 @@
                 //On récupère les données du fichier csv, ainsi que les noms
                 while (($data = fgetcsv($file)) !== FALSE)
                 {
-                    if($name == '')
+                    if($nameToRemove == '')
                     {
                         array_push($pokemonNames, $data[0]);
                     }else{
-                        if($data[0] != $name){
+                        if($data[0] != $nameToRemove){
                             array_push($pokemonNames, $data[0]);
                         }
                     }
