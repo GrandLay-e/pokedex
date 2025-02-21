@@ -50,7 +50,7 @@
                 return $pokemons;
             }
 
-            ///Fonction pour réordonner le contenu du fichier csv avant de l'afficher 
+            ///Fonction pour réordonner le contenu du fichier csv (par ordre alphabétique)avant de l'afficher 
             /// Elle sert aussi pour supprimer un pokemon
             function reoderPokemons($csv_file , $nameToRemove = ''){
                 
@@ -126,6 +126,8 @@
                 }else{
                     $pokefound = true;
                 }
+
+                #Vérifier si le pokemon existe déjà dans le fichier csv
                 if (($file = fopen("pokemons.csv", "r")) !== FALSE) {
                     while (($poke = fgetcsv($file)) !== FALSE) {
                         if (strtolower($poke[0]) == strtolower($PokemonToAdd->name)) {
@@ -136,6 +138,7 @@
                     fclose($file);
                 }
 
+                #Ajouter le pokemon au fichier csv
                 if($pokeExist == false && $pokefound == true){
                     writeArryOnCsv("pokemons.csv", [[$PokemonToAdd->name, 
                                     $PokemonToAdd->type1, 
@@ -153,7 +156,8 @@
             }if($pokeRemoving && $pokemonToRemove != ''){
                 $messageAlert = "<h6 class=messag_alert>Pokemon [$pokemonToRemove] supprimé </h6>";
                 $pokeRemoving = false;
-            } #TODO : Ne pas afficher de messag d'alerte au lancement de la page
+            }
+            
             echo $messageAlert;
             echo '<div class="pokedex">';
             reoderPokemons("pokemons.csv");
