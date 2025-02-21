@@ -1,4 +1,3 @@
-<!-- filepath: /home/abdallah/OneDrive/Documents/Lycée Voillaume/BTS SIO/Semestre 2/TC5/pokedex/index.php -->
 <html>
     <head>
         <meta charset="UTF-8">
@@ -30,17 +29,37 @@
                 }
                 fclose($file);
             }
+            //Fonction pou récupèrer u  pokemon depuis l'api 
+            function getPokemonFromApi($pokemonName){
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/".$pokemonName);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+
+                $response = curl_exec($ch);
+                return json_decode($response, true);
+            }
+            //Fonction pour récupérer les données des pokemons depuis le fichier csv
+            function getPokemonsFromCsv($csv_file){
+                $file = fopen($csv_file, 'r');
+                $pokemons = [];
+                while (($data = fgetcsv($file)) !== FALSE) {
+                    array_push($pokemons, $data);
+                }
+                fclose($file);
+                return $pokemons;
+            }
 
             ///Fonction pour réordonner le contenu du fichier csv avant de l'afficher 
             /// Elle sert aussi pour supprimer un pokemon
             function reoderPokemons($csv_file , $nameToRemove = ''){
-                $file = fopen($csv_file, 'r');
-
+                
                 $pokemons = []; #va centenir les données du fichier csv de base
                 $pokemonNames = []; #va contenir les noms des pokemons
                 $ord_pokemons = []; #va contenir les données des pokemons ordonnées
-
+                
                 //On récupère les données du fichier csv, ainsi que les noms
+                $file = fopen($csv_file, 'r');
                 while (($data = fgetcsv($file)) !== FALSE)
                 {
                     if($nameToRemove == '')
@@ -51,13 +70,16 @@
                             array_push($pokemonNames, $data[0]);
                         }
                     }
-                    array_push($pokemons, $data);
                 }
+                fclose($file); #fermer le fichier
+
+                #On récupère les données du fichier csv
+                $pokemons = getPokemonsFromCsv($csv_file);
 
                 #On trie les noms des pokemons
                 sort($pokemonNames);
 
-                #sorcharger la liste des données ordonnbées en passant par les noms triés
+                #surcharger la liste des données ordonnées en passant par les noms triés
                 // while(count($ord_pokemons) != count($pokemons)){
                     foreach($pokemonNames as $name){
                         foreach($pokemons as $poke){
@@ -67,7 +89,6 @@
                         }
                     }
                 // }
-                fclose($file); #fermer le fichier
 
                 //Voucrir de nouveau pour libérer le fichier (écrire des données vides)
                 $file = fopen($csv_file, 'w');
@@ -85,64 +106,54 @@
                 $pokemon = $_POST["pokemon"];
                 $pokemonToRemove = $_POST['pokemonsupp'];   
                 $pokeRemoving = false;
-                $pokefound = false;
-                $pokeexist = false;
+                $pokefound = true;
+                $pokeExist = false;
                 $messageAlert = '';
                 if($pokemonToRemove != ''){
                     reoderPokemons("pokemons.csv", $pokemonToRemove);
                     $pokeRemoving = true;
                 }
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/".$pokemon);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-                
-                $response = curl_exec($ch);
-                $data = json_decode($response, true);
+               
+                $data = getPokemonFromApi($pokemon);
 
-                $name = $data["name"]["fr"];
-                $img_url = $data["sprites"]["regular"];
-                $types = [];
-                foreach ($data["types"] as $type) {
-                    array_push($types, $type["name"]);
-                }
-                $type1 = $types[0];
-                $type2 = isset($types[1]) ? $types[1] : '';
+                $PokemonToAdd =  new Pokemon_card($data["name"]["fr"],
+                                                $data["types"][0]["name"],
+                                                isset($data["types"][1]) ? $data["types"][1]["name"] : '',
+                                                $data["sprites"]["regular"]);
 
-                $MyPokemon = new Pokemon_card($name, $type1, $type2, $img_url);
-
-                if($name == ''){
+                if($PokemonToAdd->name == ''){
                     $pokefound = false;
                 }else{
                     $pokefound = true;
                 }
                 if (($file = fopen("pokemons.csv", "r")) !== FALSE) {
                     while (($poke = fgetcsv($file)) !== FALSE) {
-                        if (strtolower($poke[0]) == strtolower($MyPokemon->name)) {
-                            $pokeexist = true;
+                        if (strtolower($poke[0]) == strtolower($PokemonToAdd->name)) {
+                            $pokeExist = true;
                             break;
                         }
                     }
                     fclose($file);
                 }
-                if($pokeexist == false && $pokefound == true){
-                    writeArryOnCsv("pokemons.csv", [[$MyPokemon->name, 
-                                    $MyPokemon->type1, 
-                                    $MyPokemon->type2, 
-                                    $MyPokemon->img_url]], 'a');
+
+                if($pokeExist == false && $pokefound == true){
+                    writeArryOnCsv("pokemons.csv", [[$PokemonToAdd->name, 
+                                    $PokemonToAdd->type1, 
+                                    $PokemonToAdd->type2, 
+                                    $PokemonToAdd->img_url]], 'a');
                 }
             }
             
-            if($pokefound == false){
+            if($pokefound == false && $pokemon != ''){
                 $messageAlert = "<h6 class=messag_alert> Ce pokemon n'existe pas </h6>";
             }
-            if($pokeexist){
+            if($pokeExist){
                 $messageAlert = "<h6 class=messag_alert> Ce pokemon est dejà ajouté </h6>";
-                $pokeexist = false;
+                $pokeExist = false;
             }if($pokeRemoving && $pokemonToRemove != ''){
                 $messageAlert = "<h6 class=messag_alert>Pokemon [$pokemonToRemove] supprimé </h6>";
                 $pokeRemoving = false;
-            }
+            } #TODO : Ne pas afficher de messag d'alerte au lancement de la page
             echo $messageAlert;
             echo '<div class="pokedex">';
             reoderPokemons("pokemons.csv");
