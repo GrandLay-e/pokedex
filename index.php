@@ -1,4 +1,3 @@
-<!-- filepath: /home/abdallah/OneDrive/Documents/Lycée Voillaume/BTS SIO/Semestre 2/TC5/pokedex/index.php -->
 <html>
     <head>
         <meta charset="UTF-8">
