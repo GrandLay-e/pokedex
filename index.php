@@ -30,11 +30,10 @@
                                                 isset($data["types"][1]) ? $data["types"][1]["name"] : '',
                                                 $data["sprites"]["regular"]);
                 
-
-                $PokemonToAdd = $PokemonCard->pokemonCardToArray();
-                if($PokemonToAdd[0][0] == ''){
+                if($PokemonCard->name == ''){
                     $pokefound = false;
                 }else{
+                    $PokemonToAdd = $PokemonCard->pokemonCardToArray();
                     $pokeExist = doesPokemonExists("pokemons.csv", $PokemonToAdd[0][0]);
                     if(!$pokeExist){
                         writeArrayToCsv("pokemons.csv", $PokemonToAdd, 'a');
