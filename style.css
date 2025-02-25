@@ -65,44 +65,44 @@ h1 {
     color: white;
     margin: 5px 0;
 }
-.type-eau {background-color: #06529e;}
+.type-eau {background-color: #033863;}
 
-.type-feu {background-color: #902705;}
+.type-feu {background-color: #5c1803;}
 
-.type-plante {background-color: #1f5903;}
+.type-plante {background-color: #0f3300;}
 
-.type-Électrik {background-color: #856609;}
+.type-Électrik {background-color: #4a3702;}
 
-.type-glace {background-color: #01293d;}
+.type-glace {background-color: #011a29;}
 
-.type-combat {background-color: #CC3333;}
+.type-combat {background-color: #661919;}
 
-.type-poison {background-color: #9933CC;}
+.type-poison {background-color: #4d1a66;}
 
-.type-sol {background-color: #472e15;}
+.type-sol {background-color: #2b1a0c;}
 
-.type-vol {background-color: #022f8a;}
+.type-vol {background-color: #011947;}
 
-.type-psy {background-color: #3a021e;}
+.type-psy {background-color: #220112;}
 
-.type-insecte {background-color: #99CC33;}
+.type-insecte {background-color: #4d661a;}
 
-.type-roche {background-color: #363714;}
+.type-roche {background-color: #1f2008;}
 
-.type-spectre {background-color: #663399;}
+.type-spectre {background-color: #331a4d;}
 
-.type-dragon {background-color: #6633CC;}
+.type-dragon {background-color: #331a66;}
 
-.type-ténèbres {background-color: #333333;}
+.type-ténèbres {background-color: #1a1a1a;}
 
-.type-acier {background-color: #999999;}
+.type-acier {background-color: #404040;}
 
-.type-fée {background-color: #93044b;}
+.type-fée {background-color: #4d0227;}
 
-.type-normal {background-color: #999999;}
+.type-normal {background-color: #333333;}
 
 .type-tout{
-    background-color: #05486e;
+    background-color: #022b42;
     border: 2px solid #ffffff;
     font-weight: bold;
 }
