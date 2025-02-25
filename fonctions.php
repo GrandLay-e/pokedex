@@ -14,6 +14,7 @@ function writeArrayToCsv($csv_file, $data, $mode){
     }
 }
 
+//Vérifier si OUI ou NON un pokemon a dejà été ajouté
 function doesPokemonExists($csv_file, $pokemonName){
     $pokemons = getPokemonsFromCsv($csv_file);
     foreach($pokemons as $pokemon){
@@ -124,7 +125,7 @@ function showTypesButtons($types, $selectedType = '') {
     $id = '';
     echo "<form action='index.php' method='post'>";
     echo "<nav class='types'>";
-    echo "<button type='submit' name='typeselect' value='' class='type type-tout'> TOUT </button>";
+    echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT </button>";
     foreach ($types as $type) {
         if($type == $selectedType){
             $id = "selectedType";

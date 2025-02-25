@@ -18,15 +18,16 @@
             include 'pokemonCard.php';
             include 'fonctions.php';
 
+            $pokeRemoving = false;
+            $pokefound = true;
+            $pokeExist = false;
+            $messageAlert = '';
+            
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-                $pokemon = $_POST["pokemon"];
+                $pokemon = trim($_POST["pokemon"]);
                 $pokemonToRemove = $_POST['pokemonsupp'];  
                 $selectedType = $_POST['typeselect'];
-                $pokeRemoving = false;
-                $pokefound = true;
-                $pokeExist = false;
-                $messageAlert = '';
 
                 if($pokemonToRemove != ''){
                     reoderPokemons("pokemons.csv", $pokemonToRemove);
@@ -34,19 +35,18 @@
                 }
                
                 $data = getPokemonFromApi($pokemon);
-
-                $PokemonCard =  new Pokemon_card($data["name"]["fr"],
-                                                $data["types"][0]["name"],
-                                                isset($data["types"][1]) ? $data["types"][1]["name"] : '',
-                                                $data["sprites"]["regular"]);
-                
-                if($PokemonCard->name == ''){
-                    $pokefound = false;
-                }else{
-                    $PokemonToAdd = $PokemonCard->pokemonCardToArray();
-                    $pokeExist = doesPokemonExists("pokemons.csv", $PokemonToAdd[0][0]);
-                    if(!$pokeExist){
-                        writeArrayToCsv("pokemons.csv", $PokemonToAdd, 'a');
+                if(isset($data)){
+                    $PokemonCard =  new Pokemon_card($data["name"]["fr"], $data["types"][0]["name"], 
+                    isset($data["types"][1]) ? $data["types"][1]["name"] : '',
+                    $data["sprites"]["regular"]);
+                    if($PokemonCard->name == ''){
+                        $pokefound = false;
+                    }else{
+                        $PokemonToAdd = $PokemonCard->pokemonCardToArray();
+                        $pokeExist = doesPokemonExists("pokemons.csv", $PokemonToAdd[0][0]);
+                        if(!$pokeExist){
+                            writeArrayToCsv("pokemons.csv", $PokemonToAdd, 'a');
+                        }
                     }
                 }
             }
