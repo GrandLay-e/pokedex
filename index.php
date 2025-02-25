@@ -6,8 +6,15 @@
         <title>Pokedex</title>
     </head>
     <body>
-        <h1 class="poketitle">P   O   K   E   D   E   X  </h1>
-        <?php
+        <h1 class="poketitle" id ="pokedex">P   O   K   E   D   E   X  </h1>
+        <a href="#formulaire" >
+            <button class="goTo">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#75FBFD">
+                    <path d="M480-200 240-440l56-56 184 183 184-183 56 56-240 240Zm0-240L240-680l56-56 184 183 184-183 56 56-240 240Z"/>
+                </svg>
+            </button>
+        </a>
+            <?php
             include 'pokemonCard.php';
             include 'fonctions.php';
 
@@ -64,10 +71,17 @@
             ShowPokemons($pokemons);
             
         ?>
-        <form action="index.php" method="POST">
+        <form action="index.php" method="POST" id="formulaire">
             <input type="text" name="pokemon" placeholder="Pokemon">
             <input type="submit" value="Ajouter">
         </form>
-
+        <a href="#pokedex" >
+            <button class="goTo">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#75FBFD">
+                <path d="m296-224-56-56 240-240 240 240-56 56-184-183-184 183Zm0-240-56-56 240-240 240 240-56 56-184-183-184 183Z"/>
+            </svg>
+            </button>
+        </a>
+        
     </body>
 </html>
