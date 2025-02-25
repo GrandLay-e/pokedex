@@ -1,7 +1,6 @@
 <?php
 //Fonctions pour la pokedex
 
-
 //Ecrire dans le fichier csv
 function writeArrayToCsv($csv_file, $data, $mode){
     $file = fopen($csv_file, $mode);
@@ -15,11 +14,10 @@ function writeArrayToCsv($csv_file, $data, $mode){
     }
 }
 
-
 function doesPokemonExists($csv_file, $pokemonName){
     $pokemons = getPokemonsFromCsv($csv_file);
-    foreach($pokemons as $poke){
-        if(strtolower($poke[0]) == strtolower($pokemonName))
+    foreach($pokemons as $pokemon){
+        if(strtolower($pokemon[0]) == strtolower($pokemonName))
         {
             return true;
         }
@@ -42,11 +40,17 @@ function getPokemonFromApi($pokemonName){
 
 //______________________________________________________________________________//
 //Fonction pour récupérer les données des pokemons depuis le fichier csv
-function getPokemonsFromCsv($csv_file){
+function getPokemonsFromCsv($csv_file, $typeToGet = ''){
     $file = fopen($csv_file, 'r');
     $pokemons = [];
     while (($data = fgetcsv($file)) !== FALSE) {
-        array_push($pokemons, $data);
+        if($typeToGet == ''){
+            array_push($pokemons, $data);
+        }else{
+            if(strtolower($data[1]) == strtolower($typeToGet) || strtolower($data[2]) == strtolower($typeToGet)){
+                array_push($pokemons, $data);
+            }
+        }
     }
     fclose($file);
     return $pokemons;
@@ -85,9 +89,9 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
 
     #surcharger la liste des données ordonnées en passant par les noms triés
     foreach($pokemonNames as $name){
-        foreach($pokemons as $poke){
-            if(strtolower($name) == strtolower($poke[0])){
-                array_push($ord_pokemons, $poke);
+        foreach($pokemons as $pokemon){
+            if(strtolower($name) == strtolower($pokemon[0])){
+                array_push($ord_pokemons, $pokemon);
             }
         }
     }
@@ -99,22 +103,48 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
     //Ecrire les données ordonnées dans le fichier
     writeArrayToCsv($csv_file, $ord_pokemons, 'w');
 }
+//______________________________________________________________________________//
+//Fonction pour récupèrer les types de pokemons
+function getPokemonsTypes($csv_file){
+    $pokemonsTypes = [];
+    $pokemons = getPokemonsFromCsv($csv_file);
+    foreach($pokemons as $pokemon){
+        if(array_search($pokemon[1], $pokemonsTypes) === false ){
+            array_push($pokemonsTypes, $pokemon[1]);
+        }
+        if ($pokemon[2] != '' && array_search($pokemon[2], $pokemonsTypes) === false){
+            array_push($pokemonsTypes, $pokemon[2]);
+        }
+       }
+       sort($pokemonsTypes);
+       return $pokemonsTypes;
+}
 
+function showTypesButtons($types) {
+    echo "<form action='index.php' method='post'>";
+    echo "<nav class='types'>";
+    echo "<button type='submit' name='typeselect' value='' class='type type-tout'> TOUT </button>";
+    foreach ($types as $type) {
+        echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "'>$type</button>";
+    }
+    echo "</nav>";
+    echo "</form>";
+}
 
 //______________________________________________________________________________//
 //Fonction pour afficher les données des pokemons
-function ShowPokemons($pokemons, ){
+function ShowPokemons($pokemons){
     echo '<div class="pokedex">';
-    foreach($pokemons as $poke){
+    foreach($pokemons as $pokemon){
         echo "<div class='pokemon-card'>";
-        echo "<h2 class = pokename>".$poke[0]."</h2>";
-        echo "<img src='".$poke[3]."' alt='".$poke[0]."'>";
-        echo "<br><p class='type type-".strtolower($poke[1])."'>$poke[1]</p> ";
-        if (!empty($poke[2])) {
-            echo "<p class='type type-".strtolower($poke[2])."'>$poke[2]</p> ";
+        echo "<h2 class = pokename>".$pokemon[0]."</h2>";
+        echo "<img src='".$pokemon[3]."' alt='".$pokemon[0]."'>";
+        echo "<br><p class='type type-".strtolower($pokemon[1])."'>$pokemon[1]</p> ";
+        if (!empty($pokemon[2])) {
+            echo "<p class='type type-".strtolower($pokemon[2])."'>$pokemon[2]</p> ";
         }
         echo"<form action='index.php' method='POST'>";
-        echo"<input type='hidden'name='pokemonsupp' value='$poke[0]'>";
+        echo"<input type='hidden'name='pokemonsupp' value='$pokemon[0]'>";
         echo"<input type='submit' value='Supprimer' id='suppbutton'>";
         echo"</form>";
         echo "</div>";

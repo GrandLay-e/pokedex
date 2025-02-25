@@ -12,12 +12,15 @@
             include 'fonctions.php';
 
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
                 $pokemon = $_POST["pokemon"];
-                $pokemonToRemove = $_POST['pokemonsupp'];   
+                $pokemonToRemove = $_POST['pokemonsupp'];  
+                $selectedType = $_POST['typeselect'];
                 $pokeRemoving = false;
                 $pokefound = true;
                 $pokeExist = false;
                 $messageAlert = '';
+
                 if($pokemonToRemove != ''){
                     reoderPokemons("pokemons.csv", $pokemonToRemove);
                     $pokeRemoving = true;
@@ -52,10 +55,12 @@
                 $messageAlert = "<h6 class=messag_alert>Pokemon [$pokemonToRemove] supprimé </h6>";
                 $pokeRemoving = false;
             }
-            
+
             echo $messageAlert;
+            $types = getPokemonsTypes("pokemons.csv");
+            showTypesButtons($types);
             reoderPokemons("pokemons.csv");
-            $pokemons = getPokemonsFromCsv("pokemons.csv");
+            $pokemons = getPokemonsFromCsv("pokemons.csv", $selectedType);
             ShowPokemons($pokemons);
             
         ?>

@@ -5,6 +5,23 @@ body {
     margin: 0;
     padding: 20px;
 }
+.types{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: auto;
+    /* border: solid white; */
+    border-radius: 3em;
+    /* box-shadow: 0px 0px 10px 5px black; */
+}
+button[type="submit"]{
+    margin: 1em;
+    border: 0px;
+    box-shadow: 0px 0px 15px 3px black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* font-size: 1em; */
+}
+
 .poketitle{
     color: white;
     text-align: center;
@@ -48,29 +65,29 @@ h1 {
     color: white;
     margin: 5px 0;
 }
-.type-eau {background-color: #3399FF;}
+.type-eau {background-color: #06529e;}
 
-.type-feu {background-color: #FF6633;}
+.type-feu {background-color: #902705;}
 
-.type-plante {background-color: #66CC33;}
+.type-plante {background-color: #1f5903;}
 
 .type-Électrik {background-color: #856609;}
 
-.type-glace {background-color: #66CCFF;}
+.type-glace {background-color: #01293d;}
 
 .type-combat {background-color: #CC3333;}
 
 .type-poison {background-color: #9933CC;}
 
-.type-sol {background-color: #CC9966;}
+.type-sol {background-color: #472e15;}
 
-.type-vol {background-color: #6699FF;}
+.type-vol {background-color: #022f8a;}
 
-.type-psy {background-color: #FF3399;}
+.type-psy {background-color: #3a021e;}
 
 .type-insecte {background-color: #99CC33;}
 
-.type-roche {background-color: #CC9933;}
+.type-roche {background-color: #363714;}
 
 .type-spectre {background-color: #663399;}
 
@@ -80,10 +97,15 @@ h1 {
 
 .type-acier {background-color: #999999;}
 
-.type-fée {background-color: #FF99CC;}
+.type-fée {background-color: #93044b;}
 
 .type-normal {background-color: #999999;}
 
+.type-tout{
+    background-color: #05486e;
+    border: 2px solid #ffffff;
+    font-weight: bold;
+}
 
 form {
     display: flex;
