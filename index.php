@@ -7,7 +7,7 @@
     </head>
     <body>
         <h1 class="poketitle" id ="pokedex">P   O   K   E   D   E   X  </h1>
-        <a href="#formulaire" >
+        <a href="#formulaire">
             <button class="goTo">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#75FBFD">
                     <path d="M480-200 240-440l56-56 184 183 184-183 56 56-240 240Zm0-240L240-680l56-56 184 183 184-183 56 56-240 240Z"/>
@@ -65,7 +65,7 @@
 
             echo $messageAlert;
             $types = getPokemonsTypes("pokemons.csv");
-            showTypesButtons($types);
+            showTypesButtons($types, $selectedType);
             reoderPokemons("pokemons.csv");
             $pokemons = getPokemonsFromCsv("pokemons.csv", $selectedType);
             ShowPokemons($pokemons);

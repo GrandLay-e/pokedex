@@ -120,12 +120,17 @@ function getPokemonsTypes($csv_file){
        return $pokemonsTypes;
 }
 
-function showTypesButtons($types) {
+function showTypesButtons($types, $selectedType = '') {
+    $id = '';
     echo "<form action='index.php' method='post'>";
     echo "<nav class='types'>";
     echo "<button type='submit' name='typeselect' value='' class='type type-tout'> TOUT </button>";
     foreach ($types as $type) {
-        echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "'>$type</button>";
+        if($type == $selectedType){
+            $id = "selectedType";
+        }
+        echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>$type</button>";
+        $id="";
     }
     echo "</nav>";
     echo "</form>";
