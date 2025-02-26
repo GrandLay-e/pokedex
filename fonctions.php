@@ -99,7 +99,7 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
 //Fonction pour récupèrer les types de pokemons
 function getPokemonsTypes($csv_file) {
     $pokemonsTypes = [];
-    $pokemons = getPokemonsFromCsv($csv_file); // Assurez-vous que cette fonction retourne un tableau de Pokémon
+    $pokemons = getPokemonsFromCsv($csv_file);
 
     foreach ($pokemons as $pokemon) {
         // Vérifiez le premier type
@@ -133,7 +133,7 @@ function showTypesButtons($typesAndNumbers, $selectedType = '') {
     $id = '';
     echo "<form action='index.php' method='post'>";
     echo "<nav class='types'>";
-    echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [".$NumberOfPokemons."] </button>";
+    echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [ ".$NumberOfPokemons." ] </button>";
     foreach ($types as $type) {
         if($type == $selectedType){
             $id = "selectedType";
