@@ -9,6 +9,7 @@ body {
     background-color: rgba(255, 255, 255, 0);
     border:solid 3px;
     border-color: #75FBFD ;
+    border-radius: 25%;
     align-items: center;
 
 }
