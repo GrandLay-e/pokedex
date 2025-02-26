@@ -67,23 +67,13 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
     $pokemonNames = []; #va contenir les noms des pokemons
     $ord_pokemons = []; #va contenir les données des pokemons ordonnées
     
-    //On récupère les données du fichier csv, ainsi que les noms
-    $file = fopen($csv_file, 'r');
-    while (($data = fgetcsv($file)) !== FALSE)
-    {
-        if($nameToRemove == '')
-        {
-            array_push($pokemonNames, $data[0]);
-        }else{
-            if($data[0] != $nameToRemove){
-                array_push($pokemonNames, $data[0]);
-            }
-        }
-    }
-    fclose($file); #fermer le fichier
-
     #On récupère les données du fichier csv
     $pokemons = getPokemonsFromCsv($csv_file);
+
+    foreach($pokemons as $pokemon){
+        if($pokemon[0] == $nameToRemove) continue;
+        array_push($pokemonNames, $pokemon[0]);
+    }
 
     #On trie les noms des pokemons
     sort($pokemonNames);
@@ -97,40 +87,58 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
         }
     }
 
-    //Voucrir de nouveau pour libérer le fichier (écrire des données vides)
+    //ouvrir de nouveau pour libérer le fichier (écrire des données vides)
     $file = fopen($csv_file, 'w');
     fclose($file);
 
     //Ecrire les données ordonnées dans le fichier
     writeArrayToCsv($csv_file, $ord_pokemons, 'w');
 }
+
 //______________________________________________________________________________//
 //Fonction pour récupèrer les types de pokemons
-function getPokemonsTypes($csv_file){
+function getPokemonsTypes($csv_file) {
     $pokemonsTypes = [];
-    $pokemons = getPokemonsFromCsv($csv_file);
-    foreach($pokemons as $pokemon){
-        if(array_search($pokemon[1], $pokemonsTypes) === false ){
-            array_push($pokemonsTypes, $pokemon[1]);
+    $pokemons = getPokemonsFromCsv($csv_file); // Assurez-vous que cette fonction retourne un tableau de Pokémon
+
+    foreach ($pokemons as $pokemon) {
+        // Vérifiez le premier type
+        if (!empty($pokemon[1])) {
+            if (!isset($pokemonsTypes[$pokemon[1]])) {
+                $pokemonsTypes[$pokemon[1]] = 1; // Initialiser le compteur
+            } else {
+                $pokemonsTypes[$pokemon[1]] += 1; // Incrémenter le compteur
+            }
         }
-        if ($pokemon[2] != '' && array_search($pokemon[2], $pokemonsTypes) === false){
-            array_push($pokemonsTypes, $pokemon[2]);
+
+        // Vérifiez le deuxième type
+        if (!empty($pokemon[2])) {
+            if (!isset($pokemonsTypes[$pokemon[2]])) {
+                $pokemonsTypes[$pokemon[2]] = 1; // Initialiser le compteur
+            } else {
+                $pokemonsTypes[$pokemon[2]] += 1; // Incrémenter le compteur
+            }
         }
-       }
-       sort($pokemonsTypes);
-       return $pokemonsTypes;
+    }
+
+    // Trier le tableau par clé (type de Pokémon)
+    ksort($pokemonsTypes);
+    return $pokemonsTypes;
 }
 
-function showTypesButtons($types, $selectedType = '') {
+
+function showTypesButtons($typesAndNumbers, $selectedType = '') {
+    $NumberOfPokemons = count(getPokemonsFromCsv("pokemons.csv"));
+    $types = array_keys($typesAndNumbers);
     $id = '';
     echo "<form action='index.php' method='post'>";
     echo "<nav class='types'>";
-    echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT </button>";
+    echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [".$NumberOfPokemons."] </button>";
     foreach ($types as $type) {
         if($type == $selectedType){
             $id = "selectedType";
         }
-        echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>$type</button>";
+        echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>".$type." [ ". $typesAndNumbers[$type] ." ] </button>";
         $id="";
     }
     echo "</nav>";
