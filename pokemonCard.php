@@ -1,4 +1,7 @@
 <?php
+
+include_once 'fonctions.php';
+
 class Pokemon_card{
     public $name;
     public $type1;
@@ -22,6 +25,11 @@ class Pokemon_card{
             ]
         ];
     }
+
+    public function AddPokemonToCsv($csvFile){
+        writeArrayToCsv($csvFile, $this->pokemonCardToArray(), 'a');
+    }
+
 }
 
 ?>

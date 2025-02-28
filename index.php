@@ -15,9 +15,10 @@
             </button>
         </a>
             <?php
-            include 'pokemonCard.php';
-            include 'fonctions.php';
+            include_once 'pokemonCard.php';
+            include_once 'fonctions.php';
 
+            $csvFile = "pokemons.csv";
             $pokeRemoving = false;
             $pokefound = true;
             $pokeExist = false;
@@ -30,7 +31,7 @@
                 $selectedType = $_POST['typeselect'];
 
                 if($pokemonToRemove != ''){
-                    reoderPokemons("pokemons.csv", $pokemonToRemove);
+                    reoderPokemons($csvFile, $pokemonToRemove);
                     $pokeRemoving = true;
                 }
                
@@ -42,10 +43,10 @@
                     if($PokemonCard->name == ''){
                         $pokefound = false;
                     }else{
-                        $PokemonToAdd = $PokemonCard->pokemonCardToArray();
-                        $pokeExist = doesPokemonExists("pokemons.csv", $PokemonToAdd[0][0]);
-                        if(!$pokeExist){
-                            writeArrayToCsv("pokemons.csv", $PokemonToAdd, 'a');
+                        if(!doesPokemonExists($csvFile, $PokemonCard->name)){
+                            $PokemonCard->AddPokemonToCsv($csvFile);
+                        }else{
+                            $pokeExist = true;
                         }
                     }
                 }
