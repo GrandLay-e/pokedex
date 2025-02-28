@@ -122,7 +122,11 @@ function getPokemonsTypes($csv_file) {
     }
 
     // Trier le tableau par clé (type de Pokémon)
-    ksort($pokemonsTypes);
+    // ksort($pokemonsTypes);
+
+    // Trier le tableau par valeur (nombre de Pokémon)
+    arsort($pokemonsTypes);
+    
     return $pokemonsTypes;
 }
 
