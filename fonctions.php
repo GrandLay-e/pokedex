@@ -8,7 +8,8 @@ function getPostForm($value){
     return isset($_POST[$value]) ? $_POST[$value] : "";
 }
 //Ecrire dans le fichier csv
-function writeArrayToCsv($csv_file, $data, $mode){
+function writePokemonCardToCsv($csv_file, $pokemonCard, $mode){
+    $data = $pokemonCard->pokemonCardToArray();
     $file = fopen($csv_file, $mode);
     if ($file !== false) {
         foreach($data as $line){

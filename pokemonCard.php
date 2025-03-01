@@ -27,7 +27,7 @@ class Pokemon_card{
     }
 
     public function AddPokemonToCsv($csvFile){
-        writeArrayToCsv($csvFile, $this->pokemonCardToArray(), 'a');
+        writePokemonCardToCsv($csvFile, $this, 'a');
     }
 
     public function ShowPokemonCard(){
