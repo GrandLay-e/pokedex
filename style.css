@@ -28,6 +28,7 @@ button[type="submit"]{
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 #selectedType{
+    width: 20%;
     margin-left: 2em;
     margin-right: 2em;
     border: 0px;
