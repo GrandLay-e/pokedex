@@ -26,28 +26,23 @@
             
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-                $pokemon = trim($_POST["pokemon"]);
-                $pokemonToRemove = $_POST['pokemonsupp'];  
-                $selectedType = $_POST['typeselect'];
-
+                $pokemon = trim(getPostForm("pokemon"));
+                $pokemonToRemove = getPostForm('pokemonsupp');  
+                $selectedType = getPostForm('typeselect');
+                
                 if($pokemonToRemove != ''){
                     reoderPokemons($csvFile, $pokemonToRemove);
                     $pokeRemoving = true;
                 }
                
-                $data = getPokemonFromApi($pokemon);
-                if(isset($data)){
-                    $PokemonCard =  new Pokemon_card($data["name"]["fr"], $data["types"][0]["name"], 
-                    isset($data["types"][1]) ? $data["types"][1]["name"] : '',
-                    $data["sprites"]["regular"]);
-                    if($PokemonCard->name == ''){
-                        $pokefound = false;
+                $PokemonCard = getPokemonFromApi($pokemon);
+                if($PokemonCard->name == ''){
+                    $pokefound = false;
+                }else{
+                    if(!doesPokemonExists($csvFile, $PokemonCard->name)){
+                        $PokemonCard->AddPokemonToCsv($csvFile);
                     }else{
-                        if(!doesPokemonExists($csvFile, $PokemonCard->name)){
-                            $PokemonCard->AddPokemonToCsv($csvFile);
-                        }else{
-                            $pokeExist = true;
-                        }
+                        $pokeExist = true;
                     }
                 }
             }

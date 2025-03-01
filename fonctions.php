@@ -1,6 +1,12 @@
 <?php
 //Fonctions pour la pokedex
 
+include_once 'pokemonCard.php';
+
+//Récupèrer un Post
+function getPostForm($value){
+    return isset($_POST[$value]) ? $_POST[$value] : "";
+}
 //Ecrire dans le fichier csv
 function writeArrayToCsv($csv_file, $data, $mode){
     $file = fopen($csv_file, $mode);
@@ -18,7 +24,7 @@ function writeArrayToCsv($csv_file, $data, $mode){
 function doesPokemonExists($csv_file, $pokemonName){
     $pokemons = getPokemonsFromCsv($csv_file);
     foreach($pokemons as $pokemon){
-        if(strtolower($pokemon[0]) == strtolower($pokemonName))
+        if (strtolower($pokemon->name) == strtolower($pokemonName))
         {
             return true;
         }
@@ -29,15 +35,25 @@ function doesPokemonExists($csv_file, $pokemonName){
 
 //______________________________________________________________________________//
 //Fonction pour récupérer un pokemon depuis l'api 
-function getPokemonFromApi($pokemonName){
+function getPokemonFromApi($pokemonName) {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/".$pokemonName);
+    curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/" . urlencode($pokemonName));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     $response = curl_exec($ch);
-    return json_decode($response, true);
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+    if (isset($data)) {
+        return new Pokemon_card($data["name"]["fr"], $data["types"][0]["name"],
+            isset($data["types"][1]) ? $data["types"][1]["name"] : '',
+            $data["sprites"]["regular"]);
+    }
+    return null;
 }
+
 
 
 //______________________________________________________________________________//
@@ -47,10 +63,10 @@ function getPokemonsFromCsv($csv_file, $typeToGet = ''){
     $pokemons = [];
     while (($data = fgetcsv($file)) !== FALSE) {
         if($typeToGet == ''){
-            array_push($pokemons, $data);
+            array_push($pokemons, new Pokemon_card($data[0], $data[1], $data[2], $data[3]));
         }else{
             if(strtolower($data[1]) == strtolower($typeToGet) || strtolower($data[2]) == strtolower($typeToGet)){
-                array_push($pokemons, $data);
+                array_push($pokemons, new Pokemon_card($data[0], $data[1], $data[2], $data[3]));
             }
         }
     }
@@ -70,10 +86,9 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
     
     #On récupère les données du fichier csv
     $pokemons = getPokemonsFromCsv($csv_file);
-
     foreach($pokemons as $pokemon){
-        if($pokemon[0] == $nameToRemove) continue;
-        array_push($pokemonNames, $pokemon[0]);
+        if($pokemon->name == $nameToRemove) continue;
+        array_push($pokemonNames, $pokemon->name);
     }
 
     #On trie les noms des pokemons
@@ -82,7 +97,7 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
     #surcharger la liste des données ordonnées en passant par les noms triés
     foreach($pokemonNames as $name){
         foreach($pokemons as $pokemon){
-            if(strtolower($name) == strtolower($pokemon[0])){
+            if(strtolower($name) == strtolower($pokemon->name)){
                 array_push($ord_pokemons, $pokemon);
             }
         }
@@ -93,7 +108,9 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
     fclose($file);
 
     //Ecrire les données ordonnées dans le fichier
-    writeArrayToCsv($csv_file, $ord_pokemons, 'w');
+    foreach($ord_pokemons as $pokemon){
+        $pokemon->AddPokemonToCsv($csv_file);
+    }
 }
 
 //______________________________________________________________________________//
@@ -103,21 +120,19 @@ function getPokemonsTypes($csv_file) {
     $pokemons = getPokemonsFromCsv($csv_file);
 
     foreach ($pokemons as $pokemon) {
-        // Vérifiez le premier type
-        if (!empty($pokemon[1])) {
-            if (!isset($pokemonsTypes[$pokemon[1]])) {
-                $pokemonsTypes[$pokemon[1]] = 1; // Initialiser le compteur
+        if (!empty($pokemon->type1)) {
+            if (!isset($pokemonsTypes[$pokemon->type1])) {
+                $pokemonsTypes[$pokemon->type1] = 1; 
             } else {
-                $pokemonsTypes[$pokemon[1]] += 1; // Incrémenter le compteur
+                $pokemonsTypes[$pokemon->type1] += 1; 
             }
         }
 
-        // Vérifiez le deuxième type
-        if (!empty($pokemon[2])) {
-            if (!isset($pokemonsTypes[$pokemon[2]])) {
-                $pokemonsTypes[$pokemon[2]] = 1; // Initialiser le compteur
+        if (!empty($pokemon->type2)) {
+            if (!isset($pokemonsTypes[$pokemon->type2])) {
+                $pokemonsTypes[$pokemon->type2] = 1; 
             } else {
-                $pokemonsTypes[$pokemon[2]] += 1; // Incrémenter le compteur
+                $pokemonsTypes[$pokemon->type2] += 1; 
             }
         }
     }
@@ -155,18 +170,7 @@ function showTypesButtons($typesAndNumbers, $selectedType = '') {
 function ShowPokemons($pokemons){
     echo '<div class="pokedex">';
     foreach($pokemons as $pokemon){
-        echo "<div class='pokemon-card'>";
-        echo "<h2 class = pokename>".$pokemon[0]."</h2>";
-        echo "<img src='".$pokemon[3]."' alt='".$pokemon[0]."'>";
-        echo "<br><p class='type type-".strtolower($pokemon[1])."'>$pokemon[1]</p> ";
-        if (!empty($pokemon[2])) {
-            echo "<p class='type type-".strtolower($pokemon[2])."'>$pokemon[2]</p> ";
-        }
-        echo"<form action='index.php' method='POST'>";
-        echo"<input type='hidden'name='pokemonsupp' value='$pokemon[0]'>";
-        echo"<input type='submit' value='Supprimer' id='suppbutton'>";
-        echo"</form>";
-        echo "</div>";
+        echo $pokemon->ShowPokemonCard();
     }
     echo "</div>";
 }
