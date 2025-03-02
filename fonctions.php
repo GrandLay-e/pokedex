@@ -37,6 +37,7 @@ function getPokemonFromApi($pokemonName) {
 
     $data = json_decode($response, true);
     if (isset($data)) {
+        // Si le pokemon existe, on retourne un objet Pokemon_card
         return new Pokemon_card($data["name"]["fr"], $data["types"][0]["name"],
             isset($data["types"][1]) ? $data["types"][1]["name"] : '',
             $data["sprites"]["regular"]);
@@ -73,7 +74,6 @@ function reoderPokemons($csv_file, $nameToRemove = '') {
     $pokemons = []; #va contenir les données du fichier csv de base
     $pokemonNames = []; #va contenir les noms des pokemons
     $ord_pokemons = []; #va contenir les données des pokemons ordonnées
-    // $nameExiste = false;
 
     #On récupère les données du fichier csv
     $pokemons = getPokemonsFromCsv($csv_file);
@@ -116,7 +116,9 @@ function getPokemonsTypes($csv_file) {
     $pokemonsTypes = [];
     $pokemons = getPokemonsFromCsv($csv_file);
 
+    // Compter le nombre de pokemons par type
     foreach ($pokemons as $pokemon) {
+        //Vérifier le premier type
         if (!empty($pokemon->type1)) {
             if (!isset($pokemonsTypes[$pokemon->type1])) {
                 $pokemonsTypes[$pokemon->type1] = 1; 
@@ -125,6 +127,7 @@ function getPokemonsTypes($csv_file) {
             }
         }
 
+        //Vérifier le deuxième type
         if (!empty($pokemon->type2)) {
             if (!isset($pokemonsTypes[$pokemon->type2])) {
                 $pokemonsTypes[$pokemon->type2] = 1; 

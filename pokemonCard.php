@@ -2,12 +2,15 @@
 
 include_once 'fonctions.php';
 
+//______________________________________________________________________________//
+//Classe Pokemon_card
 class Pokemon_card{
     public $name;
     public $type1;
     public $type2;
     public $img_url;
 
+    //Constructeur de la classe
     public function __construct($name, $type1, $type2, $img_url){
         $this->name = $name;
         $this->type1 = $type1;
@@ -15,6 +18,7 @@ class Pokemon_card{
         $this->img_url = $img_url;
     }
 
+    //Methode pour convertir les données d'un pokemon en tableau
     public function pokemonCardToArray(){
         return [
             [
@@ -26,6 +30,7 @@ class Pokemon_card{
         ];
     }
 
+    //Methode pour ajouter un pokemon dans un fichier CSV
     public function AddPokemonToCsv($csvFile){
         $data = $this->pokemonCardToArray();
         $file = fopen($csvFile, 'a');
@@ -39,6 +44,7 @@ class Pokemon_card{
         }
     }
 
+    //Methode pour afficher les données d'un pokemon
     public function ShowPokemonCard(){
         $Card = "";
         $Card .= "<div class='pokemon-card'>";
