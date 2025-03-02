@@ -18,12 +18,14 @@
             include_once 'pokemonCard.php';
             include_once 'fonctions.php';
 
+            // Variables 
             $csvFile = "pokemons.csv";
             $pokeRemoving = false;
             $pokefound = true;
             $pokeExist = false;
             $messageAlert = '';
             
+            // Récupération des données
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 $pokemon = trim(getPostForm("pokemon"));
@@ -60,10 +62,10 @@
             }
 
             echo $messageAlert;
-            $types = getPokemonsTypes("pokemons.csv");
+            reoderPokemons($csvFile);
+            $types = getPokemonsTypes($csvFile);
+            $pokemons = getPokemonsFromCsv($csvFile, $selectedType);
             showTypesButtons($types, $selectedType);
-            reoderPokemons("pokemons.csv");
-            $pokemons = getPokemonsFromCsv("pokemons.csv", $selectedType);
             ShowPokemons($pokemons);
             
         ?>

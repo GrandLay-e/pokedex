@@ -27,7 +27,16 @@ class Pokemon_card{
     }
 
     public function AddPokemonToCsv($csvFile){
-        writePokemonCardToCsv($csvFile, $this, 'a');
+        $data = $this->pokemonCardToArray();
+        $file = fopen($csvFile, 'a');
+        if ($file !== false) {
+            foreach($data as $line){
+                fputcsv($file, $line, ',', '"', '\\');
+            }
+            fclose($file);
+        } else {
+            echo "Erreur lors de l'ouverture du fichier CSV.";
+        }
     }
 
     public function ShowPokemonCard(){
