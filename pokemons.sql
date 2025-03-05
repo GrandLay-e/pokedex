@@ -1,8 +1,9 @@
 CREATE TABLE pokemons (
-    name VARCHAR(50),
+    name VARCHAR(50) not NULL,
     type1 VARCHAR(50),
     type2 VARCHAR(50),
-    image_url VARCHAR(255)
+    image_url VARCHAR(255),
+    UNIQUE(name)
 );
 
 INSERT INTO pokemons (name, type1, type2, image_url) VALUES
