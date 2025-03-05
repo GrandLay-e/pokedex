@@ -10,20 +10,32 @@ function getPostForm($value){
 }
 
 //______________________________________________________________________________//
-//Vérifier si OUI ou NON un pokemon a dejà été ajouté
-function doesPokemonExists($csv_file, $pokemonName){
-    $pokemons = getPokemonsFromCsv($csv_file);
+//Connexion à la base de données
+function connectToDB($host, $dbname, $username, $password){
+    try {
+        $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $db;
+    } catch (PDOException $e) {
+        echo "Erreur : " . $e->getMessage();
+        return null;
+    }
+}
+
+// ______________________________________________________________________________//
+// Vérifier si OUI ou NON un pokemon a dejà été ajouté
+function doesPokemonExists($db, $table, $pokemonName){
+    $pokemons = getPokemonsFromSqlDb($db, $table);
     foreach($pokemons as $pokemon){
         if (strtolower($pokemon->name) == strtolower($pokemonName))
         {
             return true;
         }
     }
-    return false;
-    
+    return false;    
 }
 
-//______________________________________________________________________________//
+// //______________________________________________________________________________//
 //Fonction pour récupérer un pokemon depuis l'api 
 function getPokemonFromApi($pokemonName) {
     $ch = curl_init();
@@ -45,76 +57,36 @@ function getPokemonFromApi($pokemonName) {
     return null;
 }
 
-
-
-//______________________________________________________________________________//
-//Fonction pour récupérer les données des pokemons depuis le fichier csv
-function getPokemonsFromCsv($csv_file, $typeToGet = ''){
-    $file = fopen($csv_file, 'r');
+function getPokemonsFromSqlDb($db, $table, $typeToGet =''){
     $pokemons = [];
-    while (($data = fgetcsv($file, 0, ',', '"', '\\')) !== FALSE) {
-        if($typeToGet == ''){
-            array_push($pokemons, new Pokemon_card($data[0], $data[1], $data[2], $data[3]));
-        }else{
-            if(strtolower($data[1]) == strtolower($typeToGet) || strtolower($data[2]) == strtolower($typeToGet)){
-                array_push($pokemons, new Pokemon_card($data[0], $data[1], $data[2], $data[3]));
-            }
-        }
+    $sql = "SELECT * FROM $table ";
+    if ($typeToGet != '') {
+        $sql .= " WHERE type1 = :typeToGet OR type2 = :typeToGet ";
     }
-    fclose($file);
+    $sql .= " ORDER BY name ";
+    $stmt = $db->prepare($sql);
+    if ($typeToGet != '') {
+        $stmt->bindParam(':typeToGet', $typeToGet);
+    }
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        array_push($pokemons, new Pokemon_card($row['name'], $row['type1'], $row['type2'], $row['image_url']));
+    }
     return $pokemons;
 }
 
-
-//______________________________________________________________________________//
-//Fonction pour réordonner le contenu du fichier csv (par ordre alphabétique)avant de l'afficher 
-/// Elle sert aussi pour supprimer un pokemon
-function reoderPokemons($csv_file, $nameToRemove = '') {
-    
-    $pokemons = []; #va contenir les données du fichier csv de base
-    $pokemonNames = []; #va contenir les noms des pokemons
-    $ord_pokemons = []; #va contenir les données des pokemons ordonnées
-
-    #On récupère les données du fichier csv
-    $pokemons = getPokemonsFromCsv($csv_file);
-    foreach($pokemons as $pokemon){
-        if($pokemon->name == $nameToRemove || in_array($pokemon->name, $pokemonNames))
-            continue;
-        array_push($pokemonNames, $pokemon->name);
-    }
-
-    #On trie les noms des pokemons
-    sort($pokemonNames);
-
-    #surcharger la liste des données ordonnées en passant par les noms triés
-    foreach($pokemonNames as $name){
-        foreach($pokemons as $pokemon){
-            $nameExist = false;
-            foreach($ord_pokemons as $ord_pokemon){
-                if($ord_pokemon->name == $name)
-                    $nameExist = true;
-            }if($pokemon->name == $name && !$nameExist){
-                array_push($ord_pokemons, $pokemon);
-            }
-        }
-    }
-    
-
-    //ouvrir de nouveau pour libérer le fichier (écrire des données vides)
-    $file = fopen($csv_file, 'w');
-    fclose($file);
-
-    //Ecrire les données ordonnées dans le fichier
-    foreach($ord_pokemons as $pokemon){
-        $pokemon->AddPokemonToCsv($csv_file);
-    }
+function removePokemon($db, $table, $nameToRemove){
+    $sql = "DELETE FROM $table WHERE name = :nameToRemove";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':nameToRemove', $nameToRemove);
+    $stmt->execute();
 }
 
 //______________________________________________________________________________//
 //Fonction pour récupèrer les types de pokemons
-function getPokemonsTypes($csv_file) {
+function getPokemonsTypes($db, $table) {
     $pokemonsTypes = [];
-    $pokemons = getPokemonsFromCsv($csv_file);
+    $pokemons = getPokemonsFromSqlDb($db, $table);
 
     // Compter le nombre de pokemons par type
     foreach ($pokemons as $pokemon) {
@@ -142,15 +114,15 @@ function getPokemonsTypes($csv_file) {
 
     // Trier le tableau par valeur (nombre de Pokémon)
     arsort($pokemonsTypes);
-    
+
     return $pokemonsTypes;
 }
 
-//______________________________________________________________________________//
-//Fonction pour afficher les boutons des types de pokemons
-function showTypesButtons($typesAndNumbers, $selectedType = '') {
-    $NumberOfPokemons = count(getPokemonsFromCsv("pokemons.csv"));
+// //______________________________________________________________________________//
+// //Fonction pour afficher les boutons des types de pokemons
+function showTypesButtons($db, $table, $typesAndNumbers, $selectedType = '') {
     $types = array_keys($typesAndNumbers);
+    $NumberOfPokemons = count(getPokemonsFromSqlDb($db, $table));
     $id = '';
     echo "<form action='index.php' method='POST'>";
     echo "<nav class='types'>";
@@ -166,7 +138,7 @@ function showTypesButtons($typesAndNumbers, $selectedType = '') {
     echo "</form>";
 }
 
-//______________________________________________________________________________//
+// //______________________________________________________________________________//
 //Fonction pour afficher les données des pokemons
 function ShowPokemons($pokemons){
     echo '<div class="pokedex">';

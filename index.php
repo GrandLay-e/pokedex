@@ -19,8 +19,15 @@
             include_once 'pokemonCard.php';
             include_once 'fonctions.php';
 
+            // Connexion à la base de données
+            $host = 'localhost'; // Hôte de la base de données
+            $dbname = 'pokedex'; // Nom de la base de données
+            $username = 'root'; // Nom d'utilisateur pour se connecter
+            $password = ''; // Mot de passe de l'utilisateur pour se connecter
+            $table = "pokemons"; //la table SQL
+            $db = connectToDB($host, $dbname, $username, $password);
+     
             // Variables 
-            $csvFile = "pokemons.csv";
             $pokeRemoving = false;
             $pokefound = true;
             $pokeExist = false;
@@ -35,7 +42,7 @@
 
                 //Gestion de la suppression d'un pokemon si le formulaire est soumis
                 if($pokemonToRemove != ''){
-                    reoderPokemons($csvFile, $pokemonToRemove);
+                    removePokemon($db, $table, $pokemonToRemove);
                     $pokeRemoving = true;
                 }
                
@@ -45,8 +52,8 @@
                     if($PokemonCard->name == ''){
                         $pokefound = false;
                     }else{
-                        if(!doesPokemonExists($csvFile, $PokemonCard->name)){
-                            $PokemonCard->AddPokemonToCsv($csvFile);
+                        if(!doesPokemonExists($db,$table, $PokemonCard->name)){
+                            $PokemonCard->AddPokemonToSQL($db, $table);
                         }else{
                             $pokeExist = true;
                         }
@@ -69,22 +76,21 @@
 
             //Phase d'affichage des données
             echo $messageAlert;
-            //Récupération les pokemons par ordre alphabétique et aussi supprimer les doublons si y'en a
-            reoderPokemons($csvFile);
 
             //Récupération des types de pokemons
-            $types = getPokemonsTypes($csvFile);
+            $types = getPokemonsTypes($db, $table);
 
             //Récupération des pokemons selon le type sélectionné
-            $pokemons = getPokemonsFromCsv($csvFile, $selectedType);
+            $pokemons = getPokemonsFromSqlDb($db, $table, $selectedType);
 
             //Affichage des boutons de types et des pokemons
-            showTypesButtons($types, $selectedType);
+            showTypesButtons($db, $table, $types, $selectedType);
 
             //Affichage des pokemons
             ShowPokemons($pokemons);
             
-        ?>
+        // 
+        // ?>
         <!-- Formulaire qui sert à ajouter un pokemon -->
         <form action="index.php" method="POST" id="formulaire">
             <input type="text" name="pokemon" placeholder="Pokemon">
