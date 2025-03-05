@@ -30,18 +30,10 @@ class Pokemon_card{
         ];
     }
 
-    //Methode pour ajouter un pokemon dans un fichier CSV
-    public function AddPokemonToCsv($csvFile){
-        $data = $this->pokemonCardToArray();
-        $file = fopen($csvFile, 'a');
-        if ($file !== false) {
-            foreach($data as $line){
-                fputcsv($file, $line, ',', '"', '\\');
-            }
-            fclose($file);
-        } else {
-            echo "Erreur lors de l'ouverture du fichier CSV.";
-        }
+    //methode pour ajouter un pokemon dans la base de donnée SQL
+    public function AddPokemonToSQL($db, $table){
+        $sql = "INSERT INTO $table (name, type1, type2, image_url) VALUES ('".$this->name."', '".$this->type1."', '".$this->type2."', '".$this->img_url."')";
+        $db->exec($sql);
     }
 
     //Methode pour afficher les données d'un pokemon
@@ -62,7 +54,6 @@ class Pokemon_card{
 
         return $Card;
     }
-
 }
 
 ?>
