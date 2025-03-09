@@ -26,68 +26,95 @@
             $password = ''; // Mot de passe de l'utilisateur pour se connecter
             $table = "pokemons"; //la table SQL
             $db = connectToDB($host, $dbname, $username, $password);
-     
+
+            //EXEMPLES DE POKEMONS POUR TESTER LES NOUVELLES FONCTIONS
+            $pokemon = new PokemonCard(
+                1,
+                'bulbizarre',
+                'Pokémon Graine',
+                ['Plante' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/plante.png', 'Poison' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/poison.png'],
+                ['regular' => "https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/1/regular.png", 'shiny' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/1/shiny.png'],
+                ['Engrais', 'Chlorophylle'],
+                ['Feu', 'Glace', 'Vol', 'Psy'],
+                0.7,
+                6.9
+            );
+            $pokemon->SavePokemonToSQLDb($db);
+
+            $pokemon3 = new PokemonCard(
+                3,
+                'Abo',
+                'Pokémon Serpent',
+                ['Poison' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/poison.png'],
+                ['regular' => "https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/3/regular.png", 'shiny' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/3/shiny.png'],
+                ['Intimidation', 'Mue'],
+                ['Psy'],
+                2.0,
+                6.9
+            );
+            $pokemon3->SavePokemonToSQLDb($db);
+
             // Variables 
-            $pokeRemoving = false;
-            $pokefound = true;
-            $pokeExist = false;
-            $messageAlert = '';
+            // $pokeRemoving = false;
+            // $pokefound = true;
+            // $pokeExist = false;
+            // $messageAlert = '';
             
-            // Récupération des données
-            $pokemon = trim(getPostForm("pokemon"));
-            $pokemonToRemove = getPostForm('pokemonsupp');  
-            $selectedType = getPostForm('typeselect');
+            // // Récupération des données
+            // $pokemon = trim(getPostForm("pokemon"));
+            // $pokemonToRemove = getPostForm('pokemonsupp');  
+            // $selectedType = getPostForm('typeselect');
 
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            // if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-                //Gestion de la suppression d'un pokemon si le formulaire est soumis
-                if($pokemonToRemove != ''){
-                    removePokemon($db, $table, $pokemonToRemove);
-                    $pokeRemoving = true;
-                }
+            //     //Gestion de la suppression d'un pokemon si le formulaire est soumis
+            //     if($pokemonToRemove != ''){
+            //         removePokemon($db, $table, $pokemonToRemove);
+            //         $pokeRemoving = true;
+            //     }
                
-                //Gestion de l'ajout d'un pokemon si le formulaire est soumis
-                if($pokemon != ''){
-                    $PokemonCard = getPokemonFromApi($pokemon);
-                    if($PokemonCard->name == ''){
-                        $pokefound = false;
-                    }else{
-                        if(!doesPokemonExists($db,$table, $PokemonCard->name)){
-                            $PokemonCard->AddPokemonToSQL($db, $table);
-                        }else{
-                            $pokeExist = true;
-                        }
-                    }
-                }
-            }
+            //     //Gestion de l'ajout d'un pokemon si le formulaire est soumis
+            //     if($pokemon != ''){
+            //         $PokemonCard = getPokemonFromApi($pokemon);
+            //         if($PokemonCard->name == ''){
+            //             $pokefound = false;
+            //         }else{
+            //             if(!doesPokemonExists($db,$table, $PokemonCard->name)){
+            //                 $PokemonCard->AddPokemonToSQL($db, $table);
+            //             }else{
+            //                 $pokeExist = true;
+            //             }
+            //         }
+            //     }
+            // }
             
-            // Définir le message d'alerte à envoyer selon les cas
-            if($pokefound == false && $pokemon != ''){
-                $messageAlert = "<h6 class=messag_alert> Ce pokemon n'existe pas </h6>";
-            }
-            if($pokeExist){
-                $messageAlert = "<h6 class=messag_alert> Ce pokemon est dejà ajouté </h6>";
-                $pokeExist = false;
-            }
-            if($pokeRemoving && $pokemonToRemove != ''){
-                $messageAlert = "<h6 class=messag_alert>Pokemon [$pokemonToRemove] supprimé </h6>";
-                $pokeRemoving = false;
-            }
+            // // Définir le message d'alerte à envoyer selon les cas
+            // if($pokefound == false && $pokemon != ''){
+            //     $messageAlert = "<h6 class=messag_alert> Ce pokemon n'existe pas </h6>";
+            // }
+            // if($pokeExist){
+            //     $messageAlert = "<h6 class=messag_alert> Ce pokemon est dejà ajouté </h6>";
+            //     $pokeExist = false;
+            // }
+            // if($pokeRemoving && $pokemonToRemove != ''){
+            //     $messageAlert = "<h6 class=messag_alert>Pokemon [$pokemonToRemove] supprimé </h6>";
+            //     $pokeRemoving = false;
+            // }
 
-            //Phase d'affichage des données
-            echo $messageAlert;
+            // //Phase d'affichage des données
+            // echo $messageAlert;
 
-            //Récupération des types de pokemons
-            $types = getPokemonsTypes($db, $table);
+            // //Récupération des types de pokemons
+            // $types = getPokemonsTypes($db, $table);
 
-            //Récupération des pokemons selon le type sélectionné
-            $pokemons = getPokemonsFromSqlDb($db, $table, $selectedType);
+            // //Récupération des pokemons selon le type sélectionné
+            // $pokemons = getPokemonsFromSqlDb($db, $table, $selectedType);
 
-            //Affichage des boutons de types et des pokemons
-            showTypesButtons($db, $table, $types, $selectedType);
+            // //Affichage des boutons de types et des pokemons
+            // showTypesButtons($db, $table, $types, $selectedType);
 
-            //Affichage des pokemons
-            ShowPokemons($pokemons);
+            // //Affichage des pokemons
+            // ShowPokemons($pokemons);
             
         // 
         // ?>
