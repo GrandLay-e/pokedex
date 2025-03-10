@@ -85,6 +85,34 @@ function setLinks( $db, $table, $values, $pokemonId){
         InsertTablesLinks( $db, $table_link, $pokemonId, $attrId);
     }
 }
+
+function sqlRowToPokemonCard($row){
+    
+    $pokemon_id = $row['pokemon_id'];
+    $name = $row['name'];
+    $category = $row['category'];
+    $images = explode(', ', $row['images']);
+    $formatedImages = [
+        'regular' => $images[0],
+        'shiny' => $images[1]
+    ];
+    $types = explode(', ', $row['types']);
+    $talents = explode(', ', $row['talents']);
+    $resistances = explode(', ', $row['resistances']);
+    $size = $row['size'];
+    $weight = $row['weight'];
+    
+    return new PokemonCard(
+        $pokemon_id, 
+        $name, 
+        $category, 
+        $types, 
+        $formatedImages, 
+        $talents, 
+        $resistances, 
+        $size, 
+        $weight);
+}
 // ______________________________________________________________________________//
 // Vérifier si OUI ou NON un pokemon a dejà été ajouté
 // function doesPokemonExists($db, $table, $pokemonName){
@@ -100,47 +128,136 @@ function setLinks( $db, $table, $values, $pokemonId){
 
 // // //______________________________________________________________________________//
 // //Fonction pour récupérer un pokemon depuis l'api 
-// function getPokemonFromApi($pokemonName) {
-//     $ch = curl_init();
-//     curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/" . urlencode($pokemonName));
-//     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-//     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-//     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-//     $response = curl_exec($ch);
-//     curl_close($ch);
-//     return json_decode($response, true);
-// }
+function getPokemonFromApi($pokemonName) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/" . urlencode($pokemonName));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    $data = json_decode($response, true);
+
+    return structPokemonDataFromJson($data);
+}
 
 
-// function decodeApiResponse($response){
-//    echo $response;
-// }
+function structPokemonDataFromJson($data){
+    // var_dump($data);
+    $talents = [];
+    $resistances = [];
+    $types = [];
+    // $images = [];
 
-// function getPokemonsFromSqlDb($db, $table, $typeToGet =''){
-//     $pokemons = [];
-//     $sql = "SELECT * FROM $table ";
-//     if ($typeToGet != '') {
-//         $sql .= " WHERE type1 = :typeToGet OR type2 = :typeToGet ";
-//     }
-//     $sql .= " ORDER BY name ";
-//     $stmt = $db->prepare($sql);
-//     if ($typeToGet != '') {
-//         $stmt->bindParam(':typeToGet', $typeToGet);
-//     }
-//     $stmt->execute();
-//     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-//         array_push($pokemons, new Pokemon_card($row['name'], $row['type1'], $row['type2'], $row['image_url']));
-//     }
-//     return $pokemons;
-// }
+    $pokemon_id = $data["pokedex_id"];
+    $name = $data["name"]["fr"];
+    $category = $data["category"];
+    $types = [$data["types"][0]["name"] => $data["types"][0]["image"]];
+    if(isset($data["types"][1])){
+        $types[$data["types"][1]["name"]] = $data["types"][1]["image"];
+    }
+    $images = [
+        'regular' => $data["sprites"]["regular"],
+        'shiny' => $data["sprites"]["shiny"]
+    ];
 
-// function removePokemon($db, $table, $nameToRemove){
-//     $sql = "DELETE FROM $table WHERE name = :nameToRemove";
-//     $stmt = $db->prepare($sql);
-//     $stmt->bindParam(':nameToRemove', $nameToRemove);
-//     $stmt->execute();
-// }
+    foreach($data['talents'] as $talent){
+        $talents[] = $talent["name"];
+    }
+    $resistances = [];
+    foreach($data['resistances'] as $resistance){
+        $resistances[] = $resistance["name"];
+    }
+    $size = $data["height"];
+    $weight = $data["weight"];
+
+    return new PokemonCard(
+        $pokemon_id, 
+        $name, 
+        $category, 
+        $types, 
+        $images, 
+        $talents, 
+        $resistances, 
+        $size, 
+        $weight);
+}
+
+function getPokemonsFromSqlDb($db){
+    $pokemons = [];
+    $sql = "SELECT p.pokemon_id, p.name, p.category,
+    CONCAT( p.image_url,', ', p.shiny_img) AS images,
+    GROUP_CONCAT(DISTINCT ty.name ORDER BY ty.name ASC SEPARATOR ', ') AS types,
+    GROUP_CONCAT(DISTINCT ta.name ORDER BY ta.name ASC SEPARATOR ', ') AS talents,
+    GROUP_CONCAT(DISTINCT r.name ORDER BY r.name ASC SEPARATOR ', ') AS resistances,
+
+    p.size,
+    p.weight
+
+    FROM pokemons p 
+    INNER JOIN resistances_l rl ON rl.pokemon_id = p.pokemon_id
+    INNER JOIN resistances r ON r.id = rl.resistance_id
+
+    INNER JOIN talents_l tal ON tal.pokemon_id = p.pokemon_id
+    INNER JOIN talents ta ON ta.id = tal.talent_id
+
+    INNER JOIN types_l tyl ON tyl.pokemon_id = p.pokemon_id
+    INNER JOIN types ty ON ty.id = tyl.type_id
+
+    GROUP BY p.pokemon_id, p.name,  p.category,  p.size,  p.weight, images";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+ 
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $pokemons[] = sqlRowToPokemonCard($row);
+    }
+    return $pokemons;
+}
+
+function removePokemon($db, $nameToRemove) {
+    try {
+        // Démarrer une transaction
+        $db->beginTransaction();
+
+        // Préparer la requête pour obtenir l'ID du Pokémon
+        $stmt = $db->prepare("SELECT pokemon_id FROM pokemons WHERE name = :nameToRemove");
+        $stmt->bindParam(':nameToRemove', $nameToRemove);
+        $stmt->execute();
+        
+        // Récupérer l'ID du Pokémon
+        $pokemonId = $stmt->fetchColumn();
+
+        if ($pokemonId) {
+            // Supprimer les associations dans les tables de liaison
+            $stmt = $db->prepare("DELETE FROM types_l WHERE pokemon_id = :pokemonId");
+            $stmt->bindParam(':pokemonId', $pokemonId);
+            $stmt->execute();
+
+            $stmt = $db->prepare("DELETE FROM talents_l WHERE pokemon_id = :pokemonId");
+            $stmt->bindParam(':pokemonId', $pokemonId);
+            $stmt->execute();
+
+            $stmt = $db->prepare("DELETE FROM resistances_l WHERE pokemon_id = :pokemonId");
+            $stmt->bindParam(':pokemonId', $pokemonId);
+            $stmt->execute();
+
+            // Supprimer le Pokémon
+            $stmt = $db->prepare("DELETE FROM pokemons WHERE name = :nameToRemove");
+            $stmt->bindParam(':nameToRemove', $nameToRemove);
+            $stmt->execute();
+        }
+
+        // Valider la transaction
+        $db->commit();
+    } catch (Exception $e) {
+        // Annuler la transaction en cas d'erreur
+        $db->rollBack();
+        echo "Erreur lors de la suppression du Pokémon : " . $e->getMessage();
+    }
+}
+
 
 // //______________________________________________________________________________//
 // //Fonction pour récupèrer les types de pokemons
@@ -199,13 +316,13 @@ function setLinks( $db, $table, $values, $pokemonId){
 // }
 
 // // //______________________________________________________________________________//
-// //Fonction pour afficher les données des pokemons
-// function ShowPokemons($pokemons){
-//     echo '<div class="pokedex">';
-//     foreach($pokemons as $pokemon){
-//         echo $pokemon->ShowPokemonCard();
-//     }
-//     echo "</div>";
-// }
+//Fonction pour afficher les données des pokemons
+function ShowPokemons($pokemons){
+    echo '<div class="pokedex">';
+    foreach($pokemons as $pokemon){
+        echo $pokemon->ShowPokemonCard();
+    }
+    echo "</div>";
+}
 
 ?>

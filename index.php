@@ -27,32 +27,27 @@
             $table = "pokemons"; //la table SQL
             $db = connectToDB($host, $dbname, $username, $password);
 
-            //EXEMPLES DE POKEMONS POUR TESTER LES NOUVELLES FONCTIONS
-            $pokemon = new PokemonCard(
-                1,
-                'bulbizarre',
-                'Pokémon Graine',
-                ['Plante' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/plante.png', 'Poison' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/poison.png'],
-                ['regular' => "https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/1/regular.png", 'shiny' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/1/shiny.png'],
-                ['Engrais', 'Chlorophylle'],
-                ['Feu', 'Glace', 'Vol', 'Psy'],
-                0.7,
-                6.9
-            );
-            $pokemon->SavePokemonToSQLDb($db);
 
-            $pokemon3 = new PokemonCard(
-                3,
-                'Abo',
-                'Pokémon Serpent',
-                ['Poison' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/types/poison.png'],
-                ['regular' => "https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/3/regular.png", 'shiny' => 'https://raw.githubusercontent.com/Yarkis01/TyraDex/images/sprites/3/shiny.png'],
-                ['Intimidation', 'Mue'],
-                ['Psy'],
-                2.0,
-                6.9
-            );
-            $pokemon3->SavePokemonToSQLDb($db);
+            $name = $_POST['pokemon'];
+            $pokemon = getPokemonFromApi($name);
+            if ($pokemon !== null){
+                $pokemon->SavePokemonToSQLDb($db);
+            }
+
+
+            $pokemons = getPokemonsFromSqlDb($db);
+            // foreach ($pokemons as $pokemon){
+            //     removePokemon($db, $pokemon->name);
+            // }
+            showPokemons($pokemons);
+            // removePokemon($db, 'Bulbizarre');
+            //EXEMPLES DE POKEMONS POUR TESTER LES NOUVELLES FONCTIONS
+            
+
+            // $pokemons = getPokemonsFromSqlDb($db);
+            // removePokemon($db, 'Abo');
+            // showPokemons($pokemons);
+
 
             // Variables 
             // $pokeRemoving = false;

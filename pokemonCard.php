@@ -16,7 +16,17 @@ class PokemonCard{
     public $weight;
 
     // Constructeur de la classe
-    public function __construct($id, $name, $category, array $types = [], array $img_urls = [], array $talents = [], array $resistances = [], $size = 0, $weight = 0) {
+    public function __construct(
+        $id, 
+        $name, 
+        $category, 
+        array $types = [], 
+        array $img_urls = [], 
+        array $talents = [], 
+        array $resistances = [], 
+        $size = 0, 
+        $weight = 0) {
+            
         $this->id = $id;
         $this->name = $name;
         $this->category = $category;
@@ -73,15 +83,27 @@ class PokemonCard{
     public function ShowPokemonCard(){
         $Card = "";
         $Card .= "<div class='pokemon-card'>";
+        $Card .="<form action='index.php' method='POST'>";
+        $Card .="<input type='hidden'name='pokemonsupp' value='".$this->name."'>";
+        $Card .= "<button type='submit' value='Supprimer' id='suppbutton'>";
+        $Card .= "<svg xmlns='http://www.w3.org/2000/svg' 
+        // height='24px' viewBox='0 -960 960 960' width='24px' fill='#FFFFFF'>
+        // <path d='m336-280-56-56 144-144-144-143 56-56 144 144 143-144 56 56-144 143 144 144-56 56-143-144-144 144Z'/>
+        // </svg>";
+        $Card .= "</button>";
+        $Card .="</form>";
+        
+        
         $Card .= "<h2 class = pokename>".$this->name."</h2>";
-        $Card .= "<img src='".$this->img_urls[0]."' alt='".$this->name."'>";
+        $Card .= "<img src='".$this->img_urls['regular']."' alt='".$this->name."'>";
         $Card .= "<br><p class='type type-".strtolower($this->types[0])."'>".$this->types[0]."</p> ";
         if (!empty($this->types[1])) {
             $Card .= "<p class='type type-".strtolower($this->types[1])."'>".$this->types[1]."</p> ";
         }
-        $Card .="<form action='index.php' method='POST'>";
-        $Card .="<input type='hidden'name='pokemonsupp' value='".$this->name."'>";
-        $Card .="<input type='submit' value='Supprimer' id='suppbutton'>";
+
+        // $Card .="<form action='index.php' method='POST'>";
+        // $Card .="<input type='hidden'name='pokemonsupp' value='".$this->name."'>";
+        // $Card .="<input type='submit' value='Supprimer' id='suppbutton'>";
         $Card .="</form>";
         $Card .= "</div>";
 
