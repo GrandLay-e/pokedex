@@ -64,16 +64,15 @@
 6. Créer les liens pour les talents dans la table `lien talent`.
 7. Créer les liens pour les résistances dans la table `lien resistance`.
 
-## Prochaine étape
-- *Récupération des données*
+### Récupération des données
     - Gèrer les récupèration
         - Les jointures avec toutes les tables necessaires
         - le formattage pour l'adapter à l'objet PokemonCard
+        - L'envoyer à la page pour l'afficher
 
--  *L'affichage des informations*
+### L'affichage des informations
     - Séparer l'affichage en carte (tous les pokemons sur une seule page)
     - Et l'affichage en entier d'un pokemon (avec lien `en savoir plus`)
         - Afficher sur une page pokemon.php
-        - Esthétique de l'affichage à voir avec le CSS
     - Ajouter les boutons de tous les types ainsi que [le nombre de pokemons] avec ce type 
-- *Possibilité de modifier les informations d'un pokemon*
+    

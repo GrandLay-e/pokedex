@@ -1,0 +1,81 @@
+.pokemon-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #04481f;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+}
+a{
+    color: white;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 2em;
+    text-decoration: none;
+}
+.pokemon-name {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.line1 {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.imagepk{
+    size: 25px;
+    height: auto;
+}
+
+.line1 img{
+    size: 25px;
+    height: auto;
+}
+.line1 div {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.talents-resistances {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.talent, .resistance{
+    margin: 2%;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    text-align: center;
+    margin: 5px;
+    padding: 10px;
+    background-color: #045151;
+    border-radius: 5px;
+}
+.resistance {
+    background-color: rgb(103, 9, 9);
+}
+.types_p{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    margin-top: 10px;
+}
+#onetype{
+
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+}
+.type-img{
+    size: 2em;
+}
+

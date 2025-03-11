@@ -14,6 +14,7 @@ class PokemonCard{
     public $resistances = [];
     public $size; 
     public $weight;
+    public $nickname;
 
     // Constructeur de la classe
     public function __construct(
@@ -25,7 +26,8 @@ class PokemonCard{
         array $talents = [], 
         array $resistances = [], 
         $size = 0, 
-        $weight = 0) {
+        $weight = 0,
+        $nickname = '') {
             
         $this->id = $id;
         $this->name = $name;
@@ -36,6 +38,7 @@ class PokemonCard{
         $this->resistances = $resistances;
         $this->size = $size;
         $this->weight = $weight;
+        $this->nickname = $nickname;
     }
 
     //Methode pour convertir les données d'un pokemon en tableau
@@ -53,7 +56,7 @@ class PokemonCard{
     //methode pour ajouter un pokemon dans la base de donnée SQL
     public function SavePokemonToSQLDb($db){
         
-        insertAttribute($db,'types', $this->types);
+        insertAttribute($db,'types',  array_keys($this->types));
         insertAttribute($db, 'talents', $this->talents);
         insertAttribute($db,'resistances', $this->resistances);
         
@@ -92,19 +95,25 @@ class PokemonCard{
         // </svg>";
         $Card .= "</button>";
         $Card .="</form>";
-        
-        
         $Card .= "<h2 class = pokename>".$this->name."</h2>";
-        $Card .= "<img src='".$this->img_urls['regular']."' alt='".$this->name."'>";
-        $Card .= "<br><p class='type type-".strtolower($this->types[0])."'>".$this->types[0]."</p> ";
-        if (!empty($this->types[1])) {
-            $Card .= "<p class='type type-".strtolower($this->types[1])."'>".$this->types[1]."</p> ";
+        if($this->nickname != ''){
+            $Card .= "<p class = 'nickname' color = 'white'>".$this->nickname."</p>";
         }
+        
+        $Card .= "<img src='".$this->img_urls['regular']."' alt='".$this->name."'>";
+        $Card .= "<br><p class='type type-".strtolower(array_keys($this->types)[0])."'>".array_keys($this->types)[0]."</p> ";
+        if (!empty(array_keys($this->types)[1])) {
+            $Card .= "<p class='type type-".strtolower(array_keys($this->types)[1])."'>".array_keys($this->types)[1]."</p> ";
+        }
+        $Card .= "<form action='pokemon.php' method='POST'>";
+        $Card .= "<input type='hidden' name='pokemonDetails' value='".$this->name."'>";
+        $Card .= "<button type='submit' value='Details' id='detailsbutton'>";
+        $Card .= "<svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='#FFFFFF'>
+        // <path d='M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z'/>
+        // </svg>";
+        $Card .= "</button>";
+        $Card .= "</form>";
 
-        // $Card .="<form action='index.php' method='POST'>";
-        // $Card .="<input type='hidden'name='pokemonsupp' value='".$this->name."'>";
-        // $Card .="<input type='submit' value='Supprimer' id='suppbutton'>";
-        $Card .="</form>";
         $Card .= "</div>";
 
         return $Card;

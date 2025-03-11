@@ -86,8 +86,16 @@ function setLinks( $db, $table, $values, $pokemonId){
     }
 }
 
+function addNickname($db, $pokemonName, $nickname){
+    $sql = "UPDATE pokemons SET nickname = :surnom Where name = :name";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(":surnom", $nickname);
+    $stmt->bindParam(":name", $pokemonName);
+    $stmt->execute();
+}
 function sqlRowToPokemonCard($row){
     
+    $forematedtype = [];
     $pokemon_id = $row['pokemon_id'];
     $name = $row['name'];
     $category = $row['category'];
@@ -96,22 +104,28 @@ function sqlRowToPokemonCard($row){
         'regular' => $images[0],
         'shiny' => $images[1]
     ];
-    $types = explode(', ', $row['types']);
+    $types = explode(',', $row['types']);
+    foreach($types as $type){
+        $temp = explode('~', $type);
+        $forematedtype[trim($temp[0])] = trim($temp[1]);
+    }
     $talents = explode(', ', $row['talents']);
     $resistances = explode(', ', $row['resistances']);
     $size = $row['size'];
     $weight = $row['weight'];
-    
+    $nickname = $row['nickname'];
+
     return new PokemonCard(
         $pokemon_id, 
         $name, 
         $category, 
-        $types, 
+        $forematedtype, 
         $formatedImages, 
         $talents, 
         $resistances, 
         $size, 
-        $weight);
+        $weight,
+        $nickname);
 }
 // ______________________________________________________________________________//
 // Vérifier si OUI ou NON un pokemon a dejà été ajouté
@@ -184,37 +198,44 @@ function structPokemonDataFromJson($data){
         $weight);
 }
 
-function getPokemonsFromSqlDb($db){
+function getPokemonsFromSqlDb($db, $name = '') {
     $pokemons = [];
-    $sql = "SELECT p.pokemon_id, p.name, p.category,
-    CONCAT( p.image_url,', ', p.shiny_img) AS images,
-    GROUP_CONCAT(DISTINCT ty.name ORDER BY ty.name ASC SEPARATOR ', ') AS types,
-    GROUP_CONCAT(DISTINCT ta.name ORDER BY ta.name ASC SEPARATOR ', ') AS talents,
-    GROUP_CONCAT(DISTINCT r.name ORDER BY r.name ASC SEPARATOR ', ') AS resistances,
 
-    p.size,
-    p.weight
+    $sql = "SELECT p.pokemon_id, p.name, p.category, p.nickname,
+                CONCAT(p.image_url, ', ', p.shiny_img) AS images,
+                GROUP_CONCAT(DISTINCT CONCAT(ty.name, '~', ty.image_url) ORDER BY ty.name ASC SEPARATOR ', ') AS types,
+                GROUP_CONCAT(DISTINCT ta.name ORDER BY ta.name ASC SEPARATOR ', ') AS talents,
+                GROUP_CONCAT(DISTINCT r.name ORDER BY r.name ASC SEPARATOR ', ') AS resistances,
+                p.size, p.weight
+            FROM pokemons p
+            INNER JOIN resistances_l rl ON rl.pokemon_id = p.pokemon_id
+            INNER JOIN resistances r ON r.id = rl.resistance_id
+            INNER JOIN talents_l tal ON tal.pokemon_id = p.pokemon_id
+            INNER JOIN talents ta ON ta.id = tal.talent_id
+            INNER JOIN types_l tyl ON tyl.pokemon_id = p.pokemon_id
+            INNER JOIN types ty ON ty.id = tyl.type_id";
+    
+    if ($name != '') {
+        $sql .= " WHERE p.name = :name ";
+    }
 
-    FROM pokemons p 
-    INNER JOIN resistances_l rl ON rl.pokemon_id = p.pokemon_id
-    INNER JOIN resistances r ON r.id = rl.resistance_id
-
-    INNER JOIN talents_l tal ON tal.pokemon_id = p.pokemon_id
-    INNER JOIN talents ta ON ta.id = tal.talent_id
-
-    INNER JOIN types_l tyl ON tyl.pokemon_id = p.pokemon_id
-    INNER JOIN types ty ON ty.id = tyl.type_id
-
-    GROUP BY p.pokemon_id, p.name,  p.category,  p.size,  p.weight, images";
+    $sql .= " GROUP BY p.pokemon_id, p.name, p.category, p.size, p.weight, p.nickname, images";
 
     $stmt = $db->prepare($sql);
+
+    if ($name != '') {
+        $stmt->bindParam(':name', $name);
+    }
+
     $stmt->execute();
- 
+
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $pokemons[] = sqlRowToPokemonCard($row);
     }
+
     return $pokemons;
 }
+
 
 function removePokemon($db, $nameToRemove) {
     try {
@@ -325,4 +346,45 @@ function ShowPokemons($pokemons){
     echo "</div>";
 }
 
+function showPokemonDetails($pokemon){
+    $details = "<div class='pokemon-details'>";
+    $details .= "<h2 class='pokemon-name'>" . $pokemon->name . "</h2>";
+    $details .= "" . $pokemon->category . "<br>";
+    $details .= "<div class='line1'> <img class='imagepk' src='" . $pokemon->img_urls['regular'] . "' alt='Image regular de " . $pokemon->name . "'>";
+    
+    $details .= "<div class='inside'>";
+
+    $details .= "<div> Size : " . $pokemon->size . " <br> Weight : " . $pokemon->weight . " </div>";
+    
+    $details .= "<div class='types_p'>";
+    foreach($pokemon->types as $type => $img){
+        $details .= "<div id = onetype>";
+        $details .= "<p class='type-" .strtolower($type) . "'>" . $type . "</p>";
+        $details .= " <img class = 'type-img' src='" . $img . "' alt='Image de " . $type . "'>";
+        $details .= "</div>";
+    }
+    $details .= "</div>";
+
+    $details .= "</div>";
+    
+    $details .= "<img class='imagepk' src='" . $pokemon->img_urls['shiny'] . "' alt='Image shiny de " . $pokemon->name . "'>";
+    $details .= "</div>";
+
+    $details .= "<h3> Talents </h3>";
+    $details .= "<div class='talents-resistances'>";
+    foreach($pokemon->talents as $talent){
+        $details .= "<div class='talent'>" . $talent . "</div>";
+    }
+    $details .= "</div>";
+
+    $details .= "<h3> Resistances </h3>";
+    $details .= "<div class='talents-resistances'>";
+    foreach($pokemon->resistances as $resistance){
+        $details .= "<div class='resistance'>" . $resistance . "</div>";
+    }
+    $details .= "</div>";
+    $details .= "</div>";
+
+    return $details;
+}
 ?>
