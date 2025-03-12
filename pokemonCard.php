@@ -81,7 +81,7 @@ class PokemonCard{
         setLinks($db, 'types', array_keys($this->types), $this->id);
         setLinks($db, 'talents', $this->talents, $this->id);
         setLinks($db, 'resistances', $this->resistances, $this->id);
-			
+    }
     public function AddPokemonToSQL($db, $table){
         try {
             $sql = "INSERT INTO $table (name, type1, type2, image_url) VALUES (:name, :type1, :type2, :img_url)";
