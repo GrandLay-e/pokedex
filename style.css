@@ -196,7 +196,9 @@ input[type="submit"]:hover {
 .formulaires{
     display: flex;
     flex-direction: row;
-    align-items : center;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
 }
 
 fieldset{

@@ -84,20 +84,22 @@ class PokemonCard{
 
     //Methode pour afficher les données d'un pokemon
     public function ShowPokemonCard(){
-        $Card = "";
-        $Card .= "<div class='pokemon-card'>";
-        $Card .="<form action='index.php' method='POST'>";
-        $Card .="<input type='hidden'name='pokemonsupp' value='".$this->name."'>";
-        $Card .= "<button type='submit' value='Supprimer' id='suppbutton'>";
-        $Card .= "<svg xmlns='http://www.w3.org/2000/svg' 
+        $Card = "<div class='pokemon-card'>
+        <form action='index.php' method='POST'>
+        <input type='hidden'name='pokemonsupp' value='".$this->name."'>
+        <button type='submit' value='Supprimer' id='suppbutton'>
+        <svg xmlns='http://www.w3.org/2000/svg' 
         // height='24px' viewBox='0 -960 960 960' width='24px' fill='#FFFFFF'>
         // <path d='m336-280-56-56 144-144-144-143 56-56 144 144 143-144 56 56-144 143 144 144-56 56-143-144-144 144Z'/>
-        // </svg>";
-        $Card .= "</button>";
-        $Card .="</form>";
-        $Card .= "<h2 class = pokename>".$this->name."</h2>";
+        // </svg>
+        </button>
+        </form>
+        <h2 class = pokename>".$this->name."</h2>";
+        
         if($this->nickname != ''){
             $Card .= "<p class = 'nickname' color = 'white'>".$this->nickname."</p>";
+        }else{
+            $Card .= "<p> <br> </p>";
         }
         
         $Card .= "<img src='".$this->img_urls['regular']."' alt='".$this->name."'>";
@@ -105,16 +107,17 @@ class PokemonCard{
         if (!empty(array_keys($this->types)[1])) {
             $Card .= "<p class='type type-".strtolower(array_keys($this->types)[1])."'>".array_keys($this->types)[1]."</p> ";
         }
-        $Card .= "<form action='pokemon.php' method='POST'>";
-        $Card .= "<input type='hidden' name='pokemonDetails' value='".$this->name."'>";
-        $Card .= "<button type='submit' value='Details' id='detailsbutton'>";
-        $Card .= "<svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='#FFFFFF'>
-        // <path d='M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z'/>
-        // </svg>";
-        $Card .= "</button>";
-        $Card .= "</form>";
+        $Card .= "<form action='pokemon.php' method='POST'>
+       <input type='hidden' name='pokemonDetails' value='".$this->name."'>
+       <button type='submit' value='Details' id='detailsbutton'>
 
-        $Card .= "</div>";
+        <svg xmlns='http://www.w3.org/2000/svg' height='24px' viewBox='0 -960 960 960' width='24px' fill='#FFFFFF'>
+        // <path d='M383-480 200-664l56-56 240 240-240 240-56-56 183-184Zm264 0L464-664l56-56 240 240-240 240-56-56 183-184Z'/>
+        // </svg>
+        
+        </button>
+        </form>
+        </div>";
 
         return $Card;
     }

@@ -1,6 +1,7 @@
 CREATE TABLE pokemons (
     pokemon_id INT PRIMARY KEY NOT NULL,
     name VARCHAR(50) NOT NULL,
+    nickname VARCHAR(50),
     category VARCHAR(50) NOT NULL,
     image_url VARCHAR(255) NOT NULL,
     shiny_img VARCHAR(255) NOT NULL,

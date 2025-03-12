@@ -26,8 +26,7 @@
             $password = ''; // Mot de passe de l'utilisateur pour se connecter
             $table = "pokemons"; //la table SQL
             $db = connectToDB($host, $dbname, $username, $password);
-
-
+            
 
             // Variables 
             $pokeRemoving = false;
@@ -36,11 +35,11 @@
             $messageAlert = '';
             
             // // Récupération des données
-            $pokemon = trim(getPostForm("pokemon"));
+            $pokemon = getPostForm("pokemon");
             $pokemonToRemove = getPostForm('pokemonsupp');
-
-            $pokemonName = trim(getPostForm('pokemonName'));
-            $nickname = trim(getPostForm('nickname'));
+            $pokemonName = getPostForm('pokemonName');
+            $nickname = getPostForm('nickname');
+            $selectedType = getPostForm('typeselect');
 
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -49,16 +48,22 @@
                     removePokemon($db,  $pokemonToRemove);
                     $pokeRemoving = true;
                 }
-
+                //ajouter un surnom au pokmon
                 if($pokemonName != '' && $nickname != ''){
                     addNickname($db, $pokemonName, $nickname);
                 }
+                
 
+                //Ajouter un pokemon s'il n'est pas encore présent
                 if($pokemon != ''){
                     $pokeCard = getPokemonFromApi( $pokemon);
                     if($pokeCard != null){
                         $pokeFound = true;
-                        $pokeCard->SavePokemonToSQLDb( $db );
+                        if(!doesPokemonExists($db, $pokeCard->name)){
+                            $pokeCard->SavePokemonToSQLDb( $db );
+                        }else{
+                            $pokeExist = true;
+                        }
                     }
                 }
 
@@ -81,10 +86,14 @@
             echo $messageAlert;
 
             //Récupération des pokemons selon le type sélectionné
-            $pokemons = getPokemonsFromSqlDb($db,  );
+            $pokemons = getPokemonsFromSqlDb($db);
+
+            //récupération et affichage des types
+            $types = getPokemonsTypes( $db );
+            showTypesButtons($db, $types, $selectedType);
 
             //Affichage des pokemons
-            ShowPokemons($pokemons);
+            ShowPokemons($pokemons, $selectedType);
             
         // 
         // ?>

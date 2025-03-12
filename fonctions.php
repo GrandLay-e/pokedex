@@ -1,16 +1,16 @@
 <?php
-//Fonctions pour la pokedex
+// Fonctions pour la pokedex
 
 include_once 'pokemonCard.php';
 
 //______________________________________________________________________________//
-//Récupèrer un Post
+// Récupérer un Post
 function getPostForm($value){
-    return isset($_POST[$value]) ? $_POST[$value] : "";
+    return isset($_POST[$value]) ? trim($_POST[$value]) : "";
 }
 
 //______________________________________________________________________________//
-//Connexion à la base de données
+// Connexion à la base de données
 function connectToDB($host, $dbname, $username, $password){
     try {
         $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -23,7 +23,7 @@ function connectToDB($host, $dbname, $username, $password){
 }
 
 //______________________________________________________________________________//
-//Récupèrer l'id d'un type, talent ou résistance de pokemon
+// Récupérer l'id d'un type, talent ou résistance de pokemon
 function getAttributeId($db, $table, $attributeName) {
     try {
         $sql = "SELECT id FROM $table WHERE name = :name";
@@ -31,26 +31,26 @@ function getAttributeId($db, $table, $attributeName) {
         $stmt->bindParam(':name', $attributeName);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        // echo "<br> ". $result['id'] . "<br>";
         return $result ? $result['id'] : null;
     } catch (PDOException $e) {
-        echo "<br><br> [$table] Error dé récupèration d'ID d'attribut : " . $e->getMessage();
+        echo "<br><br> [$table] Erreur de récupération d'ID d'attribut : " . $e->getMessage();
         return null;
     }
 }
 
-
+//______________________________________________________________________________//
+// Insérer des attributs dans la base de données
 function insertAttribute($db, $table, $values){
     if ($table == 'types') {
         foreach ($values as $key => $value) {
             try {
-            $sql = "INSERT INTO $table (name, image_url) VALUES (:name, :image_url) ON DUPLICATE KEY UPDATE name = name";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(":name", $key);
-            $stmt->bindParam(":image_url", $value);
-            $stmt->execute();
+                $sql = "INSERT INTO $table (name, image_url) VALUES (:name, :image_url) ON DUPLICATE KEY UPDATE name = name";
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(":name", $key);
+                $stmt->bindParam(":image_url", $value);
+                $stmt->execute();
             } catch (PDOException $e) {
-            echo "<br><br> [$table] Error Ajout de valeurs d'attributs : " . $e->getMessage();
+                echo "<br><br> [$table] Erreur d'ajout de valeurs d'attributs : " . $e->getMessage();
             }
         }
     } else {
@@ -61,40 +61,49 @@ function insertAttribute($db, $table, $values){
                 $stmt->bindParam(":value", $value);
                 $stmt->execute();
             } catch (PDOException $e) {
-                echo "<br><br> [$table] Error Ajout de valeurs d'attributs : " . $e->getMessage();
+                echo "<br><br> [$table] Erreur d'ajout de valeurs d'attributs : " . $e->getMessage();
             }
         }
     }
 }
-function InsertTablesLinks($db, $table, $pokemonID, $attributId, ){
-    try{
+
+//______________________________________________________________________________//
+// Insérer des liens entre les tables
+function InsertTablesLinks($db, $table, $pokemonID, $attributId){
+    try {
         $sql = "INSERT IGNORE INTO $table VALUES(:id1, :id2)";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(":id1", $pokemonID);
         $stmt->bindParam(":id2", $attributId);
         $stmt->execute();
-    } catch (PDOException $e){
-        echo "<br><br> [$table] Error ajout des liens : ". $e->getMessage();
+    } catch (PDOException $e) {
+        echo "<br><br> [$table] Erreur d'ajout des liens : " . $e->getMessage();
     }
 }
 
-function setLinks( $db, $table, $values, $pokemonId){
+//______________________________________________________________________________//
+// Définir les liens entre les tables
+function setLinks($db, $table, $values, $pokemonId){
     $table_link = $table . "_l";
     foreach($values as $value){
         $attrId = getAttributeId($db, $table, $value);
-        InsertTablesLinks( $db, $table_link, $pokemonId, $attrId);
+        InsertTablesLinks($db, $table_link, $pokemonId, $attrId);
     }
 }
 
+//______________________________________________________________________________//
+// Ajouter un surnom à un Pokémon
 function addNickname($db, $pokemonName, $nickname){
-    $sql = "UPDATE pokemons SET nickname = :surnom Where name = :name";
+    $sql = "UPDATE pokemons SET nickname = :surnom WHERE name = :name";
     $stmt = $db->prepare($sql);
     $stmt->bindParam(":surnom", $nickname);
     $stmt->bindParam(":name", $pokemonName);
     $stmt->execute();
 }
+
+//______________________________________________________________________________//
+// Convertir une ligne SQL en objet PokemonCard
 function sqlRowToPokemonCard($row){
-    
     $forematedtype = [];
     $pokemon_id = $row['pokemon_id'];
     $name = $row['name'];
@@ -125,23 +134,24 @@ function sqlRowToPokemonCard($row){
         $resistances, 
         $size, 
         $weight,
-        $nickname);
+        $nickname
+    );
 }
-// ______________________________________________________________________________//
-// Vérifier si OUI ou NON un pokemon a dejà été ajouté
-function doesPokemonExists($db, $pokemonName){
-     $pokemons = getPokemonsFromSqlDb($db, $table);
-     foreach($pokemons as $pokemon){
-         if (strtolower($pokemon->name) == strtolower($pokemonName))
-         {
-             return true;
-         }
-     }
-     return false;    
- }
 
-// // //______________________________________________________________________________//
-// //Fonction pour récupérer un pokemon depuis l'api 
+//______________________________________________________________________________//
+// Vérifier si un Pokémon existe déjà
+function doesPokemonExists($db, $pokemonName){
+    $pokemons = getPokemonsFromSqlDb($db, $pokemonName);
+    foreach($pokemons as $pokemon){
+        if (strtolower($pokemon->name) == strtolower($pokemonName)){
+            return true;
+        }
+    }
+    return false;    
+}
+
+//______________________________________________________________________________//
+// Récupérer un Pokémon depuis l'API
 function getPokemonFromApi($pokemonName) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "https://tyradex.vercel.app/api/v1/pokemon/" . urlencode($pokemonName));
@@ -156,13 +166,12 @@ function getPokemonFromApi($pokemonName) {
     return structPokemonDataFromJson($data);
 }
 
-
+//______________________________________________________________________________//
+// Structurer les données d'un Pokémon à partir du JSON
 function structPokemonDataFromJson($data){
-    // var_dump($data);
     $talents = [];
     $resistances = [];
     $types = [];
-    // $images = [];
 
     $pokemon_id = $data["pokedex_id"];
     $name = $data["name"]["fr"];
@@ -179,7 +188,6 @@ function structPokemonDataFromJson($data){
     foreach($data['talents'] as $talent){
         $talents[] = $talent["name"];
     }
-    $resistances = [];
     foreach($data['resistances'] as $resistance){
         $resistances[] = $resistance["name"];
     }
@@ -195,9 +203,12 @@ function structPokemonDataFromJson($data){
         $talents, 
         $resistances, 
         $size, 
-        $weight);
+        $weight
+    );
 }
 
+//______________________________________________________________________________//
+// Récupérer les Pokémon depuis la base de données SQL
 function getPokemonsFromSqlDb($db, $name = '') {
     $pokemons = [];
 
@@ -236,7 +247,8 @@ function getPokemonsFromSqlDb($db, $name = '') {
     return $pokemons;
 }
 
-
+//______________________________________________________________________________//
+// Supprimer un Pokémon de la base de données
 function removePokemon($db, $nameToRemove) {
     try {
         // Démarrer une transaction
@@ -279,125 +291,99 @@ function removePokemon($db, $nameToRemove) {
     }
 }
 
-//function getPokemonsTypes($db){
-//    try {
-//       $sql = "SELECT name FROM types";
-//        $stmt = $db->prepare($sql);
-//        $stmt->execute();
-//        $types = $stmt->fetchAll(PDO::FETCH_COLUMN);
-//        return $types;
-//    } catch (PDOException $e) {
-//        echo "<br><br> Erreur récupération des types: " . $e->getMessage();
-//        return [];
-//    }
-//}
-
-
 //______________________________________________________________________________//
-//Fonction pour récupèrer les types de pokemons
- function getPokemonsTypes($db) {
-     $pokemonsTypes = [];
-     $pokemons = getPokemonsFromSqlDb($db);
-     
-     // Compter le nombre de pokemons par type
-     foreach ($pokemons as $pokemon) {
-         //Vérifier le premier type
-         if (!empty($pokemon->type1)) {
-             if (!isset($pokemonsTypes[$pokemon->type1])) {
-                 $pokemonsTypes[$pokemon->type1] = 1; 
-             } else {
-                 $pokemonsTypes[$pokemon->type1] += 1; 
-             }
-         }
-
-         //Vérifier le deuxième type
-         if (!empty($pokemon->type2)) {
-             if (!isset($pokemonsTypes[$pokemon->type2])) {
-                 $pokemonsTypes[$pokemon->type2] = 1; 
-             } else {
-                 $pokemonsTypes[$pokemon->type2] += 1; 
-             }
-         }
-     }
+// Fonction pour récupérer les types de Pokémon
+function getPokemonsTypes($db) {
+    $pokemonsTypes = [];
+    $pokemons = getPokemonsFromSqlDb($db);
     
+    // Compter le nombre de Pokémon par type
+    foreach ($pokemons as $pokemon){
+        $types = array_keys($pokemon->types);
+        foreach ($types as $type){
+            if(!isset($pokemonsTypes[$type])){
+                $pokemonsTypes[$type] = 1;
+            } else {
+                $pokemonsTypes[$type]++;
+            }
+        }
+    }
 
-     // Trier le tableau par clé (type de Pokémon)
-     // ksort($pokemonsTypes);
-
-     // Trier le tableau par valeur (nombre de Pokémon)
-     arsort($pokemonsTypes);
-
-     return $pokemonsTypes;
+    // Trier le tableau par valeur (nombre de Pokémon)
+    arsort($pokemonsTypes);
+    return $pokemonsTypes;
 }
 
 //______________________________________________________________________________//
-//Fonction pour afficher les boutons des types de pokemons
- function showTypesButtons($db, $table, $typesAndNumbers, $selectedType = '') {
-     $types = array_keys($typesAndNumbers);
-     $NumberOfPokemons = count(getPokemonsFromSqlDb($db, $table));
-     $id = '';
-     echo "<form action='index.php' method='POST'>";
-     echo "<nav class='types'>";
-     echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [ ".$NumberOfPokemons." ] </button>";
-     foreach ($types as $type) {
-         if($type == $selectedType){
-             $id = "selectedType";
-         }
-         echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>".$type." [ ". $typesAndNumbers[$type] ." ] </button>";
-         $id="";
-     }
-     echo "</nav>";
-     echo "</form>";
- }
+// Fonction pour afficher les boutons des types de Pokémon
+function showTypesButtons($db, $typesAndNumbers, $selectedType = '') {
+    $types = array_keys($typesAndNumbers);
+    $NumberOfPokemons = count(getPokemonsFromSqlDb($db));
+    $id = '';
+    echo "<form action='index.php' method='POST'>";
+    echo "<nav class='types'>";
+    echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [ ".$NumberOfPokemons." ] </button>";
+    foreach ($types as $type) {
+        if($type == $selectedType){
+            $id = "selectedType";
+        }
+        echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>".$type." [ ". $typesAndNumbers[$type] ." ] </button>";
+        $id="";
+    }
+    echo "</nav>";
+    echo "</form>";
+}
 
-// // //______________________________________________________________________________//
-//Fonction pour afficher les données des pokemons
-function ShowPokemons($pokemons){
+//______________________________________________________________________________//
+// Fonction pour afficher les données des Pokémon
+function ShowPokemons($pokemons, $type =''){
     echo '<div class="pokedex">';
     foreach($pokemons as $pokemon){
-        echo $pokemon->ShowPokemonCard();
+        if($type != ''){
+            if(isset($pokemon->types[$type])){
+                echo $pokemon->ShowPokemonCard();
+            }            
+        } else {
+            echo $pokemon->ShowPokemonCard();
+        }
     }
     echo "</div>";
 }
 
+//______________________________________________________________________________//
+// Fonction pour afficher les détails d'un Pokémon
 function showPokemonDetails($pokemon){
-    $details = "<div class='pokemon-details'>";
-    $details .= "<h2 class='pokemon-name'>" . $pokemon->name . "</h2>";
-    $details .= "" . $pokemon->category . "<br>";
-    $details .= "<div class='line1'> <img class='imagepk' src='" . $pokemon->img_urls['regular'] . "' alt='Image regular de " . $pokemon->name . "'>";
-    
-    $details .= "<div class='inside'>";
+    $details = "<div class='pokemon-details'>
+    <h2 class='pokemon-name'>" . $pokemon->name . "</h2>
+    " . $pokemon->category . "<br>
+    <div class='line1'> <img class='imagepk' src='" . $pokemon->img_urls['regular'] . "' alt='Image regular de " . $pokemon->name . "'>
+    <div class='inside'>
+    <div> Taille : " . $pokemon->size . " <br> Poids : " . $pokemon->weight . " </div>
+    <div class='types_p'>";
 
-    $details .= "<div> Size : " . $pokemon->size . " <br> Weight : " . $pokemon->weight . " </div>";
-    
-    $details .= "<div class='types_p'>";
     foreach($pokemon->types as $type => $img){
-        $details .= "<div id = onetype>";
-        $details .= "<p class='type-" .strtolower($type) . "'>" . $type . "</p>";
-        $details .= " <img class = 'type-img' src='" . $img . "' alt='Image de " . $type . "'>";
-        $details .= "</div>";
+        $details .= "<div id='onetype'>
+        <p class='type-" .strtolower($type) . "'>" . $type . "</p>
+         <img class='type-img' src='" . $img . "' alt='Image de " . $type . "'>
+        </div>";
     }
-    $details .= "</div>";
-
-    $details .= "</div>";
-    
-    $details .= "<img class='imagepk' src='" . $pokemon->img_urls['shiny'] . "' alt='Image shiny de " . $pokemon->name . "'>";
-    $details .= "</div>";
-
-    $details .= "<h3> Talents </h3>";
-    $details .= "<div class='talents-resistances'>";
+    $details .= "</div>
+    </div>
+    <img class='imagepk' src='" . $pokemon->img_urls['shiny'] . "' alt='Image shiny de " . $pokemon->name . "'>
+    </div>
+    <h3> Talents </h3>
+    <div class='talents-resistances'>";
     foreach($pokemon->talents as $talent){
         $details .= "<div class='talent'>" . $talent . "</div>";
     }
-    $details .= "</div>";
+    $details .= "</div>
+    <h3> Résistances </h3>
+    <div class='talents-resistances'>";
 
-    $details .= "<h3> Resistances </h3>";
-    $details .= "<div class='talents-resistances'>";
     foreach($pokemon->resistances as $resistance){
         $details .= "<div class='resistance'>" . $resistance . "</div>";
     }
-    $details .= "</div>";
-    $details .= "</div>";
+    $details .= "</div> </div>";
 
     return $details;
 }

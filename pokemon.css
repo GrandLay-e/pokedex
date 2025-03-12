@@ -2,15 +2,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #04481f;
+    background-color: #00000051;
     color: #fff;
     padding: 20px;
     border-radius: 10px;
 }
 a{
+    margin-bottom: 3em;
     color: white;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    font-size: 2em;
+    font-size: 1em;
     text-decoration: none;
 }
 .pokemon-name {
@@ -76,6 +77,8 @@ a{
     margin: 10px;
 }
 .type-img{
-    size: 2em;
+    height: 80px;
+    width: 80px;
+    align-self: center;
 }
 
