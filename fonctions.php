@@ -169,6 +169,9 @@ function getPokemonFromApi($pokemonName) {
 //______________________________________________________________________________//
 // Structurer les données d'un Pokémon à partir du JSON
 function structPokemonDataFromJson($data){
+    if(count($data) <= 5){
+        return null;
+    }
     $talents = [];
     $resistances = [];
     $types = [];

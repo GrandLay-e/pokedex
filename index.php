@@ -27,18 +27,15 @@
             $table = "pokemons"; //la table SQL
             $db = connectToDB($host, $dbname, $username, $password);
             
-
-            // Variables 
-            $pokeRemoving = false;
-            $pokefound = true;
-            $pokeExist = false;
-            $messageAlert = '';
-            
-            // // Récupération des données
+            // Récupération des données
             $pokemon = getPostForm("pokemon");
             $pokemonToRemove = getPostForm('pokemonsupp');
+
+            //Pour ajouter un surnom ici
             $pokemonName = getPostForm('pokemonName');
             $nickname = getPostForm('nickname');
+
+            //type selectionné
             $selectedType = getPostForm('typeselect');
 
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -46,42 +43,29 @@
                 //Gestion de la suppression d'un pokemon si le formulaire est soumis
                 if($pokemonToRemove != ''){
                     removePokemon($db,  $pokemonToRemove);
-                    $pokeRemoving = true;
+                    $messageAlert = "<h6 class='message_alert'>Pokémon [$pokemonToRemove] supprimé</h6>";
                 }
                 //ajouter un surnom au pokmon
                 if($pokemonName != '' && $nickname != ''){
                     addNickname($db, $pokemonName, $nickname);
                 }
-                
 
                 //Ajouter un pokemon s'il n'est pas encore présent
                 if($pokemon != ''){
                     $pokeCard = getPokemonFromApi( $pokemon);
+                    // var_dump($pokeCard);
                     if($pokeCard != null){
-                        $pokeFound = true;
                         if(!doesPokemonExists($db, $pokeCard->name)){
                             $pokeCard->SavePokemonToSQLDb( $db );
                         }else{
-                            $pokeExist = true;
+                            $messageAlert = "<h6 class='message_alert'>Ce Pokémon est déjà ajouté</h6>";
                         }
-                    }
+                    }else{
+                        $messageAlert = "<h6 class='message_alert'>Ce Pokémon n'existe pas</h6>";                    }
                 }
 
             }
             
-            // Définir le message d'alerte à envoyer selon les cas
-            if($pokefound == false && $pokemon != ''){
-                $messageAlert = "<h6 class=messag_alert> Ce pokemon n'existe pas </h6>";
-            }
-            if($pokeExist){
-                $messageAlert = "<h6 class=messag_alert> Ce pokemon est dejà ajouté </h6>";
-                $pokeExist = false;
-            }
-            if($pokeRemoving && $pokemonToRemove != ''){
-                $messageAlert = "<h6 class=messag_alert>Pokemon [$pokemonToRemove] supprimé </h6>";
-                $pokeRemoving = false;
-            }
-
             //Phase d'affichage des données
             echo $messageAlert;
 
