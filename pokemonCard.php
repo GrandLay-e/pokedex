@@ -41,18 +41,6 @@ class PokemonCard{
         $this->nickname = $nickname;
     }
 
-    //Methode pour convertir les données d'un pokemon en tableau
-    public function pokemonCardToArray(){
-        return [
-            [
-            $this->name,
-            $this->img_urls['regular'],
-            array_keys($this->types)[0],
-            array_keys($this->types)[1]
-            ]
-        ];
-    }
-
     //methode pour ajouter un pokemon dans la base de donnée SQL
 
     public function SavePokemonToSQLDb($db){
@@ -81,20 +69,6 @@ class PokemonCard{
         setLinks($db, 'types', array_keys($this->types), $this->id);
         setLinks($db, 'talents', $this->talents, $this->id);
         setLinks($db, 'resistances', $this->resistances, $this->id);
-    }
-    public function AddPokemonToSQL($db, $table){
-        try {
-            $sql = "INSERT INTO $table (name, type1, type2, image_url) VALUES (:name, :type1, :type2, :img_url)";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':name', $this->name);
-            $stmt->bindParam(':type1', $this->type1);
-            $stmt->bindParam(':type2', $this->type2);
-            $stmt->bindParam(':img_url', $this->img_url);
-            $stmt->execute();
-        } catch (PDOException $e) {
-            echo "Error: " . $e->getMessage();
-        }
-
     }
 
     //Methode pour afficher les données d'un pokemon
