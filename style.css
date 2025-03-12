@@ -71,12 +71,13 @@ h1 {
     height: 150px;
 }
 
-.type {
+.type{
+    margin-top: 15px;
     display: inline-block;
     padding: 5px 10px;
     border-radius: 4px;
     color: white;
-    margin: 5px 0;
+    margin: 5px;
 }
 .type-eau {background-color: #033863;}
 
@@ -166,4 +167,44 @@ input[type="submit"]:hover {
     font-size: 1.3em;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     text-align: center;
+}
+#detailsbutton{
+    background-color: #034946;
+    color: #000;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    }
+
+#detailsbutton:hover {
+    background-color: #ffcc00;
+}
+.AddNickName, .AddPokemon{
+    margin: 10px;
+    height: 15em;
+    background-color: rgba(0, 0, 0, 0.829);
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.formulaires{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 50vh;
+}
+
+fieldset{
+    border-radius: 2em;
+}
+
+.nickname{
+    color: white;
 }

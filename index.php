@@ -26,39 +26,47 @@
             $password = ''; // Mot de passe de l'utilisateur pour se connecter
             $table = "pokemons"; //la table SQL
             $db = connectToDB($host, $dbname, $username, $password);
-     
+            
+
             // Variables 
             $pokeRemoving = false;
             $pokefound = true;
             $pokeExist = false;
             $messageAlert = '';
             
-            // Récupération des données
-            $pokemon = trim(getPostForm("pokemon"));
-            $pokemonToRemove = getPostForm('pokemonsupp');  
+            // // Récupération des données
+            $pokemon = getPostForm("pokemon");
+            $pokemonToRemove = getPostForm('pokemonsupp');
+            $pokemonName = getPostForm('pokemonName');
+            $nickname = getPostForm('nickname');
             $selectedType = getPostForm('typeselect');
 
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 //Gestion de la suppression d'un pokemon si le formulaire est soumis
                 if($pokemonToRemove != ''){
-                    removePokemon($db, $table, $pokemonToRemove);
+                    removePokemon($db,  $pokemonToRemove);
                     $pokeRemoving = true;
                 }
-               
-                //Gestion de l'ajout d'un pokemon si le formulaire est soumis
+                //ajouter un surnom au pokmon
+                if($pokemonName != '' && $nickname != ''){
+                    addNickname($db, $pokemonName, $nickname);
+                }
+                
+
+                //Ajouter un pokemon s'il n'est pas encore présent
                 if($pokemon != ''){
-                    $PokemonCard = getPokemonFromApi($pokemon);
-                    if($PokemonCard->name == ''){
-                        $pokefound = false;
-                    }else{
-                        if(!doesPokemonExists($db,$table, $PokemonCard->name)){
-                            $PokemonCard->AddPokemonToSQL($db, $table);
+                    $pokeCard = getPokemonFromApi( $pokemon);
+                    if($pokeCard != null){
+                        $pokeFound = true;
+                        if(!doesPokemonExists($db, $pokeCard->name)){
+                            $pokeCard->SavePokemonToSQLDb( $db );
                         }else{
                             $pokeExist = true;
                         }
                     }
                 }
+
             }
             
             // Définir le message d'alerte à envoyer selon les cas
@@ -77,27 +85,43 @@
             //Phase d'affichage des données
             echo $messageAlert;
 
-            //Récupération des types de pokemons
-            $types = getPokemonsTypes($db, $table);
-
             //Récupération des pokemons selon le type sélectionné
-            $pokemons = getPokemonsFromSqlDb($db, $table, $selectedType);
+            $pokemons = getPokemonsFromSqlDb($db);
 
-            //Affichage des boutons de types et des pokemons
-            showTypesButtons($db, $table, $types, $selectedType);
+            //récupération et affichage des types
+            $types = getPokemonsTypes( $db );
+            showTypesButtons($db, $types, $selectedType);
 
             //Affichage des pokemons
-            ShowPokemons($pokemons);
+            ShowPokemons($pokemons, $selectedType);
             
         // 
         // ?>
         <!-- Formulaire qui sert à ajouter un pokemon -->
-        <form action="index.php" method="POST" id="formulaire">
-            <input type="text" name="pokemon" placeholder="Pokemon">
-            <input type="submit" value="Ajouter">
-        </form>
+    <div class="formulaires">
+        <div class="AddPokemon">
+            <fieldset width = 10%>
+                <legend>Ajouter un Pokémon</legend>
+                <form action="index.php" method="POST" id="formulaire">
+                    <input type="text" name="pokemon" placeholder="Nom du Pokémon" required>
+                    <input type="submit" value="Ajouter">
+                </form>
+            </fieldset>
+        </div>
 
-        <!-- Bouton pour remonter en haut de la page -->
+        <div class="AddNickName">
+            <fieldset>
+                <legend>Ajouter un Surnom</legend>
+                <form action="index.php" method="POST">
+                    <input type="text" name="pokemonName" placeholder="Nom du Pokémon" required>
+                    <input type="text" name="nickname" placeholder="Surnom" required>
+                    <input type="submit" value="Ajouter Surnom">
+                </form>
+            </fieldset>
+        </div>
+    </div>
+
+                <!-- Bouton pour remonter en haut de la page -->
         <a href="#pokedex" >
             <button class="goTo">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#75FBFD">
@@ -105,6 +129,5 @@
             </svg>
             </button>
         </a>
-        
     </body>
 </html>
