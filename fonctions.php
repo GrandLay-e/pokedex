@@ -129,16 +129,16 @@ function sqlRowToPokemonCard($row){
 }
 // ______________________________________________________________________________//
 // Vérifier si OUI ou NON un pokemon a dejà été ajouté
-// function doesPokemonExists($db, $table, $pokemonName){
-//     $pokemons = getPokemonsFromSqlDb($db, $table);
-//     foreach($pokemons as $pokemon){
-//         if (strtolower($pokemon->name) == strtolower($pokemonName))
-//         {
-//             return true;
-//         }
-//     }
-//     return false;    
-// }
+function doesPokemonExists($db, $pokemonName){
+     $pokemons = getPokemonsFromSqlDb($db, $table);
+     foreach($pokemons as $pokemon){
+         if (strtolower($pokemon->name) == strtolower($pokemonName))
+         {
+             return true;
+         }
+     }
+     return false;    
+ }
 
 // // //______________________________________________________________________________//
 // //Fonction pour récupérer un pokemon depuis l'api 
@@ -279,62 +279,76 @@ function removePokemon($db, $nameToRemove) {
     }
 }
 
+//function getPokemonsTypes($db){
+//    try {
+//       $sql = "SELECT name FROM types";
+//        $stmt = $db->prepare($sql);
+//        $stmt->execute();
+//        $types = $stmt->fetchAll(PDO::FETCH_COLUMN);
+//        return $types;
+//    } catch (PDOException $e) {
+//        echo "<br><br> Erreur récupération des types: " . $e->getMessage();
+//        return [];
+//    }
+//}
 
-// //______________________________________________________________________________//
-// //Fonction pour récupèrer les types de pokemons
-// function getPokemonsTypes($db, $table) {
-//     $pokemonsTypes = [];
-//     $pokemons = getPokemonsFromSqlDb($db, $table);
 
-//     // Compter le nombre de pokemons par type
-//     foreach ($pokemons as $pokemon) {
-//         //Vérifier le premier type
-//         if (!empty($pokemon->type1)) {
-//             if (!isset($pokemonsTypes[$pokemon->type1])) {
-//                 $pokemonsTypes[$pokemon->type1] = 1; 
-//             } else {
-//                 $pokemonsTypes[$pokemon->type1] += 1; 
-//             }
-//         }
+//______________________________________________________________________________//
+//Fonction pour récupèrer les types de pokemons
+ function getPokemonsTypes($db) {
+     $pokemonsTypes = [];
+     $pokemons = getPokemonsFromSqlDb($db);
+     
+     // Compter le nombre de pokemons par type
+     foreach ($pokemons as $pokemon) {
+         //Vérifier le premier type
+         if (!empty($pokemon->type1)) {
+             if (!isset($pokemonsTypes[$pokemon->type1])) {
+                 $pokemonsTypes[$pokemon->type1] = 1; 
+             } else {
+                 $pokemonsTypes[$pokemon->type1] += 1; 
+             }
+         }
 
-//         //Vérifier le deuxième type
-//         if (!empty($pokemon->type2)) {
-//             if (!isset($pokemonsTypes[$pokemon->type2])) {
-//                 $pokemonsTypes[$pokemon->type2] = 1; 
-//             } else {
-//                 $pokemonsTypes[$pokemon->type2] += 1; 
-//             }
-//         }
-//     }
+         //Vérifier le deuxième type
+         if (!empty($pokemon->type2)) {
+             if (!isset($pokemonsTypes[$pokemon->type2])) {
+                 $pokemonsTypes[$pokemon->type2] = 1; 
+             } else {
+                 $pokemonsTypes[$pokemon->type2] += 1; 
+             }
+         }
+     }
+    
 
-//     // Trier le tableau par clé (type de Pokémon)
-//     // ksort($pokemonsTypes);
+     // Trier le tableau par clé (type de Pokémon)
+     // ksort($pokemonsTypes);
 
-//     // Trier le tableau par valeur (nombre de Pokémon)
-//     arsort($pokemonsTypes);
+     // Trier le tableau par valeur (nombre de Pokémon)
+     arsort($pokemonsTypes);
 
-//     return $pokemonsTypes;
-// }
+     return $pokemonsTypes;
+}
 
-// // //______________________________________________________________________________//
-// // //Fonction pour afficher les boutons des types de pokemons
-// function showTypesButtons($db, $table, $typesAndNumbers, $selectedType = '') {
-//     $types = array_keys($typesAndNumbers);
-//     $NumberOfPokemons = count(getPokemonsFromSqlDb($db, $table));
-//     $id = '';
-//     echo "<form action='index.php' method='POST'>";
-//     echo "<nav class='types'>";
-//     echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [ ".$NumberOfPokemons." ] </button>";
-//     foreach ($types as $type) {
-//         if($type == $selectedType){
-//             $id = "selectedType";
-//         }
-//         echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>".$type." [ ". $typesAndNumbers[$type] ." ] </button>";
-//         $id="";
-//     }
-//     echo "</nav>";
-//     echo "</form>";
-// }
+//______________________________________________________________________________//
+//Fonction pour afficher les boutons des types de pokemons
+ function showTypesButtons($db, $table, $typesAndNumbers, $selectedType = '') {
+     $types = array_keys($typesAndNumbers);
+     $NumberOfPokemons = count(getPokemonsFromSqlDb($db, $table));
+     $id = '';
+     echo "<form action='index.php' method='POST'>";
+     echo "<nav class='types'>";
+     echo "<button type='submit' name='typeselect' value='' class='type type-tout' id ='tout'> TOUT [ ".$NumberOfPokemons." ] </button>";
+     foreach ($types as $type) {
+         if($type == $selectedType){
+             $id = "selectedType";
+         }
+         echo "<button type='submit' name='typeselect' value='$type' class='type type-" . strtolower($type) . "' id='$id'>".$type." [ ". $typesAndNumbers[$type] ." ] </button>";
+         $id="";
+     }
+     echo "</nav>";
+     echo "</form>";
+ }
 
 // // //______________________________________________________________________________//
 //Fonction pour afficher les données des pokemons
