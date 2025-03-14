@@ -216,7 +216,7 @@ function getPokemonsFromSqlDb($db, $name = '') {
     $pokemons = [];
 
     $sql = "SELECT p.pokemon_id, p.name, p.category, p.nickname,
-                CONCAT(p.image_url, ', ', p.shiny_img) AS images,
+                CONCAT(p.image_url, ', ', COALESCE(p.shiny_img, '')) AS images,
                 GROUP_CONCAT(DISTINCT CONCAT(ty.name, '~', ty.image_url) ORDER BY ty.name ASC SEPARATOR ', ') AS types,
                 GROUP_CONCAT(DISTINCT ta.name ORDER BY ta.name ASC SEPARATOR ', ') AS talents,
                 GROUP_CONCAT(DISTINCT r.name ORDER BY r.name ASC SEPARATOR ', ') AS resistances,
