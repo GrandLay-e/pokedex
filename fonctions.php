@@ -212,7 +212,7 @@ function structPokemonDataFromJson($data){
 
 //______________________________________________________________________________//
 // Récupérer les Pokémon depuis la base de données SQL
-function getPokemonsFromSqlDb($db, $name = '') {
+function getPokemonsFromSqlDb($db, $name = '', $search = '') {
     $pokemons = [];
 
     $sql = "SELECT p.pokemon_id, p.name, p.category, p.nickname,
@@ -229,11 +229,14 @@ function getPokemonsFromSqlDb($db, $name = '') {
             INNER JOIN types_l tyl ON tyl.pokemon_id = p.pokemon_id
             INNER JOIN types ty ON ty.id = tyl.type_id";
     
-    if ($name != '') {
+    if ($name != '' && $search == '') {
         $sql .= " WHERE p.name = :name ";
+    }if ($search != '' && $name == ''){
+        $sql .= " WHERE p.name like '%$search%'";
     }
 
-    $sql .= " GROUP BY p.pokemon_id, p.name, p.category, p.size, p.weight, p.nickname, images";
+    $sql .= " GROUP BY p.pokemon_id, p.name, p.category, p.size, p.weight, p.nickname, images
+    ORDER BY p.name ASC";
 
     $stmt = $db->prepare($sql);
 
@@ -353,41 +356,4 @@ function ShowPokemons($pokemons, $type =''){
     echo "</div>";
 }
 
-//______________________________________________________________________________//
-// Fonction pour afficher les détails d'un Pokémon
-function showPokemonDetails($pokemon){
-    $details = "<div class='pokemon-details'>
-    <h2 class='pokemon-name'>" . $pokemon->name . "</h2>
-    " . $pokemon->category . "<br>
-    <div class='line1'> <img class='imagepk' src='" . $pokemon->img_urls['regular'] . "' alt='Image regular de " . $pokemon->name . "'>
-    <div class='inside'>
-    <div> Taille : " . $pokemon->size . " <br> Poids : " . $pokemon->weight . " </div>
-    <div class='types_p'>";
-
-    foreach($pokemon->types as $type => $img){
-        $details .= "<div id='onetype'>
-        <p class='type-" .strtolower($type) . "'>" . $type . "</p>
-         <img class='type-img' src='" . $img . "' alt='Image de " . $type . "'>
-        </div>";
-    }
-    $details .= "</div>
-    </div>
-    <img class='imagepk' src='" . $pokemon->img_urls['shiny'] . "' alt='Image shiny de " . $pokemon->name . "'>
-    </div>
-    <h3> Talents </h3>
-    <div class='talents-resistances'>";
-    foreach($pokemon->talents as $talent){
-        $details .= "<div class='talent'>" . $talent . "</div>";
-    }
-    $details .= "</div>
-    <h3> Résistances </h3>
-    <div class='talents-resistances'>";
-
-    foreach($pokemon->resistances as $resistance){
-        $details .= "<div class='resistance'>" . $resistance . "</div>";
-    }
-    $details .= "</div> </div>";
-
-    return $details;
-}
 ?>

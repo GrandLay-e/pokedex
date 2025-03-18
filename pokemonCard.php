@@ -75,7 +75,7 @@ class PokemonCard{
     public function ShowPokemonCard(){
 
         $Card = "<div class='pokemon-card'>
-        <form action='index.php' method='POST'>
+        <form action='actions/removePokemon.php' method='POST'>
         <input type='hidden'name='pokemonsupp' value='".$this->name."'>
         <button type='submit' value='Supprimer' id='suppbutton'>
         <svg xmlns='http://www.w3.org/2000/svg' 
@@ -110,6 +110,54 @@ class PokemonCard{
         </div>";
 
         return $Card;
+    }
+
+    public function showPokemonDetails(){
+        $details = "<div class='pokemon-details'>
+        <h2 class='pokemon-name'>" . $this->name . "</h2>
+        " . $this->category . "<br>
+        <div class='line1'> <img class='imagepk' src='" . $this->img_urls['regular'] . "' alt='Image regular de " . $this->name . "'>
+        <div class='inside'>
+        <div> Taille : " . $this->size . " <br> Poids : " . $this->weight . " </div>
+        <div class='types_p'>";
+
+        foreach($this->types as $type => $img){
+            $details .= "<div id='onetype'>
+            <p class='type-" .strtolower($type) . "'>" . $type . "</p>
+            <img class='type-img' src='" . $img . "' alt='Image de " . $type . "'>
+            </div>";
+        }
+        $details .= "</div>
+        </div>
+        <img class='imagepk' src='" . $this->img_urls['shiny'] . "' alt='Image shiny de " . $this->name . "'>
+        </div>
+        <h3> Talents </h3>
+        <div class='talents-resistances'>";
+        foreach($this->talents as $talent){
+            $details .= "<div class='talent'>" . $talent . "</div>";
+        }
+        $details .= "</div>
+        <h3> Résistances </h3>
+        <div class='talents-resistances'>";
+
+        foreach($this->resistances as $resistance){
+            $details .= "<div class='resistance'>" . $resistance . "</div>";
+        }
+        $details .= "</div> </div>";
+
+        return $details;
+    }
+
+    public function delPokemon($db){
+        removePokemon($db, $this->name);
+    }
+
+    public function addNickname($db, $nickname){
+        $sql = "UPDATE pokemons SET nickname = :surnom WHERE name = :name";
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(":surnom", $nickname);
+        $stmt->bindParam(":name", $this->name);
+        $stmt->execute();
     }
 }
 

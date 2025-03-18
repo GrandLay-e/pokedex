@@ -35,7 +35,8 @@ $db = connectToDB($host, $dbname, $username, $password);
 $pokemons = getPokemonsFromSqlDb($db, $pokemonToShow);
 $pokemon = $pokemons[0];
 echo "<a href='index.php'> << Revenir vers la page d'accueil </a>";
-echo showPokemonDetails($pokemon);
+echo $pokemon ->showPokemonDetails();
+// echo showPokemonDetails($pokemon);
 
 echo"
 </body>
